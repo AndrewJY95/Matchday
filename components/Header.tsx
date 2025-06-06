@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Image } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, StatusBar, Image } from 'react-native';
 import { useRouter, usePathname, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
