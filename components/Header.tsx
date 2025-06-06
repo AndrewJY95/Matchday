@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Image, Platform } from 'react-native';
 import { useRouter, usePathname, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -27,7 +27,11 @@ const Header = () => {
     router.back();
     // Force update the current path after navigation
     setTimeout(() => {
-      setCurrentPath(window.location.pathname);
+      if (Platform.OS === 'web') {
+        setCurrentPath(window.location.pathname);
+      } else {
+        setCurrentPath(pathname);
+      }
     }, 0);
   };
 
