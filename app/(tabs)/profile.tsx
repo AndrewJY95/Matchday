@@ -1,15 +1,45 @@
 import { StatusBar } from 'expo-status-bar';
 import { Platform, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import * as SecureStore from 'expo-secure-store';
 
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 
+interface ProfileData {
+  name: string;
+  location: string;
+  primaryPosition: string;
+  secondaryPosition: string;
+}
+
 export default function ProfileScreen() {
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      const data = await SecureStore.getItemAsync('userProfile');
+      if (data) {
+        setProfile(JSON.parse(data));
+      }
+    };
+    loadProfile();
+  }, []);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Profile</Text>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <Text>Your profile information will appear here.</Text>
+      {profile ? (
+        <>
+          <Text style={styles.info}>Name: {profile.name}</Text>
+          <Text style={styles.info}>Location: {profile.location}</Text>
+          <Text style={styles.info}>Primary Position: {profile.primaryPosition}</Text>
+          <Text style={styles.info}>Secondary Position: {profile.secondaryPosition}</Text>
+        </>
+      ) : (
+        <Text>Your profile information will appear here.</Text>
+      )}
       <EditScreenInfo path="/app/(tabs)/profile.tsx" />
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
     </View>
@@ -30,5 +60,9 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     height: 1,
     width: '80%',
+  },
+  info: {
+    fontSize: 16,
+    marginBottom: 6,
   },
 });
