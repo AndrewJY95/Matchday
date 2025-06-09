@@ -1,30 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
 import { Platform, StyleSheet } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import * as SecureStore from 'expo-secure-store';
+import React from 'react';
+import { useUserProfile } from '@/components/UserProfileContext';
 
 import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 
-interface ProfileData {
-  name: string;
-  location: string;
-  primaryPosition: string;
-  secondaryPosition: string;
-}
-
 export default function ProfileScreen() {
-  const [profile, setProfile] = useState<ProfileData | null>(null);
-
-  useEffect(() => {
-    const loadProfile = async () => {
-      const data = await SecureStore.getItemAsync('userProfile');
-      if (data) {
-        setProfile(JSON.parse(data));
-      }
-    };
-    loadProfile();
-  }, []);
+  const { profile } = useUserProfile();
 
   return (
     <View style={styles.container}>
