@@ -23,15 +23,27 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     (async () => {
-      const stored = await SecureStore.getItemAsync('userProfile');
-      if (stored) {
-        setProfile(JSON.parse(stored));
+      try {
+        if (await SecureStore.isAvailableAsync()) {
+          const stored = await SecureStore.getItemAsync('userProfile');
+          if (stored) {
+            setProfile(JSON.parse(stored));
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to load profile', err);
       }
     })();
   }, []);
 
   const saveProfile = async (data: ProfileData) => {
-    await SecureStore.setItemAsync('userProfile', JSON.stringify(data));
+    try {
+      if (await SecureStore.isAvailableAsync()) {
+        await SecureStore.setItemAsync('userProfile', JSON.stringify(data));
+      }
+    } catch (err) {
+      console.warn('Failed to save profile', err);
+    }
     setProfile(data);
   };
 
