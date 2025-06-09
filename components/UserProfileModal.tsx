@@ -21,21 +21,45 @@ export default function UserProfileModal() {
   const [primary, setPrimary] = useState('');
   const [secondary, setSecondary] = useState('');
 
+  // Show modal if no profile, or allow editing if requested
   useEffect(() => {
     if (!profile) {
       setVisible(true);
+    } else {
+      setName(profile.name);
+      setLocation(profile.location);
+      setPrimary(profile.primaryPosition);
+      setSecondary(profile.secondaryPosition);
     }
   }, [profile]);
 
+  // Save profile and update context
   const saveProfile = async () => {
-    const data: ProfileData = {
-      name,
-      location,
-      primaryPosition: primary,
-      secondaryPosition: secondary,
-    };
-    await persistProfile(data);
-    setVisible(false);
+    try {
+      if (!name.trim()) {
+        alert('Please enter your name');
+        return;
+      }
+      if (!location.trim()) {
+        alert('Please enter your location');
+        return;
+      }
+      if (!primary) {
+        alert('Please select your primary position');
+        return;
+      }
+      const data: ProfileData = {
+        name: name.trim(),
+        location: location.trim(),
+        primaryPosition: primary,
+        secondaryPosition: secondary,
+      };
+      await persistProfile(data);
+      setVisible(false);
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      alert('Failed to save profile. Please try again.');
+    }
   };
 
   const renderPositions = (

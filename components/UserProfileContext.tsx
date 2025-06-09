@@ -20,19 +20,30 @@ const UserProfileContext = createContext<UserProfileContextValue>({
 
 export function UserProfileProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<ProfileData | null>(null);
-
   useEffect(() => {
-    (async () => {
-      const stored = await SecureStore.getItemAsync('userProfile');
-      if (stored) {
-        setProfile(JSON.parse(stored));
+    const loadProfile = async () => {
+      try {
+        const stored = await SecureStore.getItemAsync('userProfile');
+        if (stored) {
+          setProfile(JSON.parse(stored));
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
       }
-    })();
+    };
+    loadProfile();
   }, []);
-
   const saveProfile = async (data: ProfileData) => {
-    await SecureStore.setItemAsync('userProfile', JSON.stringify(data));
-    setProfile(data);
+    try {
+      console.log('Attempting to save profile:', data);
+      await SecureStore.setItemAsync('userProfile', JSON.stringify(data));
+      console.log('Profile saved successfully');
+      setProfile(data);
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      // Return a user-friendly error message instead of throwing
+      return Promise.reject('Failed to save profile. Please try again later.');
+    }
   };
 
   return (
