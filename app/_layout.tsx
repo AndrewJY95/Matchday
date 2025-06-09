@@ -2,10 +2,11 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Header from '@/components/Header';
 import UserProfileModal from '@/components/UserProfileModal';
+import { UserProfileProvider } from '@/components/UserProfileContext';
 
 export default function RootLayout() {
   return (
-    <>
+    <UserProfileProvider>
       <StatusBar style="light" backgroundColor="#1a1a2e" />
       <UserProfileModal />
       <Stack
@@ -18,6 +19,6 @@ export default function RootLayout() {
       >
         <Stack.Screen name="(tabs)" options={{ headerShown: true }} />
       </Stack>
-    </>
+    </UserProfileProvider>
   );
 }
