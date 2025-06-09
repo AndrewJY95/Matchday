@@ -10,8 +10,7 @@ import {
 } from 'react-native';
 import { useUserProfile, ProfileData } from './UserProfileContext';
 
-
-const positions = ['GK','CB','RB','LB','CDM','CM','CAM','RW','LW','ST'];
+const positions = ['GK', 'CB', 'RB', 'LB', 'CDM', 'CM', 'CAM', 'RW', 'LW', 'ST'];
 
 export default function UserProfileModal() {
   const { profile, saveProfile: persistProfile } = useUserProfile();
@@ -35,30 +34,18 @@ export default function UserProfileModal() {
 
   // Save profile and update context
   const saveProfile = async () => {
+    const data: ProfileData = {
+      name,
+      location,
+      primaryPosition: primary,
+      secondaryPosition: secondary,
+    };
     try {
-      if (!name.trim()) {
-        alert('Please enter your name');
-        return;
-      }
-      if (!location.trim()) {
-        alert('Please enter your location');
-        return;
-      }
-      if (!primary) {
-        alert('Please select your primary position');
-        return;
-      }
-      const data: ProfileData = {
-        name: name.trim(),
-        location: location.trim(),
-        primaryPosition: primary,
-        secondaryPosition: secondary,
-      };
       await persistProfile(data);
+    } catch (err) {
+      console.warn('Failed to persist profile', err);
+    } finally {
       setVisible(false);
-    } catch (error) {
-      console.error('Error saving profile:', error);
-      alert('Failed to save profile. Please try again.');
     }
   };
 
@@ -82,6 +69,80 @@ export default function UserProfileModal() {
     </View>
   );
 
+  const styles = StyleSheet.create({
+    overlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.7)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: 20,
+    },
+    modalContent: {
+      backgroundColor: '#1a1a2e',
+      borderRadius: 16,
+      padding: 24,
+      width: '100%',
+      maxWidth: 400,
+    },
+    title: {
+      color: '#fff',
+      fontSize: 20,
+      fontWeight: 'bold',
+      marginBottom: 16,
+      textAlign: 'center',
+    },
+    input: {
+      backgroundColor: '#0f0f23',
+      color: '#fff',
+      borderRadius: 12,
+      padding: 12,
+      fontSize: 16,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: '#333',
+    },
+    sectionTitle: {
+      color: '#fff',
+      fontSize: 16,
+      fontWeight: 'bold',
+      marginTop: 10,
+      marginBottom: 8,
+    },
+    positionGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      marginBottom: 16,
+    },
+    positionItem: {
+      borderWidth: 1,
+      borderColor: '#4CAF50',
+      paddingVertical: 6,
+      paddingHorizontal: 10,
+      borderRadius: 8,
+      margin: 4,
+    },
+    selectedPosition: {
+      backgroundColor: '#4CAF50',
+    },
+    positionText: {
+      color: '#fff',
+      fontSize: 14,
+    },
+    saveButton: {
+      backgroundColor: '#4CAF50',
+      paddingVertical: 14,
+      borderRadius: 12,
+      alignItems: 'center',
+      marginTop: 10,
+    },
+    saveButtonText: {
+      color: '#fff',
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+  });
+
+  // Ensure JSX elements are properly closed
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.overlay}>
@@ -113,76 +174,3 @@ export default function UserProfileModal() {
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: '#1a1a2e',
-    borderRadius: 16,
-    padding: 24,
-    width: '100%',
-    maxWidth: 400,
-  },
-  title: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  input: {
-    backgroundColor: '#0f0f23',
-    color: '#fff',
-    borderRadius: 12,
-    padding: 12,
-    fontSize: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#333',
-  },
-  sectionTitle: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginTop: 10,
-    marginBottom: 8,
-  },
-  positionGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 16,
-  },
-  positionItem: {
-    borderWidth: 1,
-    borderColor: '#4CAF50',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-    margin: 4,
-  },
-  selectedPosition: {
-    backgroundColor: '#4CAF50',
-  },
-  positionText: {
-    color: '#fff',
-    fontSize: 14,
-  },
-  saveButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  saveButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});
