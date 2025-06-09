@@ -8,18 +8,13 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
+import { useUserProfile, ProfileData } from './UserProfileContext';
 
-interface ProfileData {
-  name: string;
-  location: string;
-  primaryPosition: string;
-  secondaryPosition: string;
-}
 
 const positions = ['GK','CB','RB','LB','CDM','CM','CAM','RW','LW','ST'];
 
 export default function UserProfileModal() {
+  const { profile, saveProfile: persistProfile } = useUserProfile();
   const [visible, setVisible] = useState(false);
   const [name, setName] = useState('');
   const [location, setLocation] = useState('');
@@ -27,24 +22,25 @@ export default function UserProfileModal() {
   const [secondary, setSecondary] = useState('');
 
   useEffect(() => {
-    const checkProfile = async () => {
-      const data = await SecureStore.getItemAsync('userProfile');
-      if (!data) {
-        setVisible(true);
-      }
-    };
-    checkProfile();
-  }, []);
+    if (!profile) {
+      setVisible(true);
+    }
+  }, [profile]);
 
   const saveProfile = async () => {
-    const profile: ProfileData = {
+    const data: ProfileData = {
       name,
       location,
       primaryPosition: primary,
       secondaryPosition: secondary,
     };
-    await SecureStore.setItemAsync('userProfile', JSON.stringify(profile));
-    setVisible(false);
+    try {
+      await persistProfile(data);
+    } catch (err) {
+      console.warn('Failed to persist profile', err);
+    } finally {
+      setVisible(false);
+    }
   };
 
   const renderPositions = (
