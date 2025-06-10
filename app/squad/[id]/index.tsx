@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ScrollView,
   Text,
@@ -6,7 +6,13 @@ import {
   Pressable,
   View,
 } from 'react-native';
-import FormationPicker, { Player, Position, initialPlayers, initialPositions } from '@/components/FormationPicker';
+import FormationPicker, {
+  Player,
+  Position,
+  initialPlayers,
+  formationPositions,
+  initialPositions,
+} from '@/components/FormationPicker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 export default function SquadScreen() {
@@ -14,9 +20,12 @@ export default function SquadScreen() {
   const squadId = Array.isArray(params.id) ? params.id[0] : params.id;
   const router = useRouter();
 
+  const [playerCount, setPlayerCount] = useState(11);
+
   const [activeTeam, setActiveTeam] = useState<'Home' | 'Away'>('Home');
   const [homeData, setHomeData] = useState({ players: initialPlayers, positions: initialPositions });
   const [awayData, setAwayData] = useState({ players: initialPlayers, positions: initialPositions });
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const handleChange = (data: { players: Player[]; positions: Position[] }) => {
     if (activeTeam === 'Home') {
@@ -26,25 +35,48 @@ export default function SquadScreen() {
     }
   };
 
+  useEffect(() => {
+    const formation = formationPositions[playerCount];
+    const players = initialPlayers.slice(0, playerCount);
+    setHomeData({ players, positions: formation });
+    setAwayData({ players, positions: formation });
+  }, [playerCount]);
+
   const currentData = activeTeam === 'Home' ? homeData : awayData;
 
   return (
     <ScrollView
       contentContainerStyle={styles.container}
       showsVerticalScrollIndicator={false}>
-      <View style={styles.toggleContainer}>
-        <Pressable
-          onPress={() => setActiveTeam('Home')}
-          style={[styles.toggleButton, activeTeam === 'Home' && styles.toggleButtonActive]}
-        >
-          <Text style={[styles.toggleText, activeTeam === 'Home' && styles.toggleTextActive]}>Home</Text>
-        </Pressable>
-        <Pressable
-          onPress={() => setActiveTeam('Away')}
-          style={[styles.toggleButton, activeTeam === 'Away' && styles.toggleButtonActive]}
-        >
-          <Text style={[styles.toggleText, activeTeam === 'Away' && styles.toggleTextActive]}>Away</Text>
-        </Pressable>
+      <View style={styles.selectionRow}>
+        <View style={styles.toggleContainer}>
+          <Pressable
+            onPress={() => setActiveTeam('Home')}
+            style={[styles.toggleButton, activeTeam === 'Home' && styles.toggleButtonActive]}
+          >
+            <Text style={[styles.toggleText, activeTeam === 'Home' && styles.toggleTextActive]}>Home</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => setActiveTeam('Away')}
+            style={[styles.toggleButton, activeTeam === 'Away' && styles.toggleButtonActive]}
+          >
+            <Text style={[styles.toggleText, activeTeam === 'Away' && styles.toggleTextActive]}>Away</Text>
+          </Pressable>
+        </View>
+        <View style={styles.dropdownContainer}>
+          <Pressable onPress={() => setShowDropdown(!showDropdown)} style={styles.dropdownToggle}>
+            <Text style={styles.toggleText}>{playerCount} Players ▾</Text>
+          </Pressable>
+          {showDropdown && (
+            <View style={styles.dropdownMenu}>
+              {[5,6,7,8,9,10,11].map(n => (
+                <Pressable key={n} onPress={() => {setPlayerCount(n); setShowDropdown(false);}} style={styles.dropdownOption}>
+                  <Text style={styles.toggleText}>{n} Players</Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
+        </View>
       </View>
       <FormationPicker
         players={currentData.players}
@@ -69,8 +101,8 @@ const styles = StyleSheet.create({
   },
   toggleContainer: {
     flexDirection: 'row',
-    alignSelf: 'center',
-    marginBottom: 16,
+    flexGrow: 1,
+    justifyContent: 'center',
     borderRadius: 4,
     overflow: 'hidden',
     borderWidth: 1,
@@ -90,5 +122,35 @@ const styles = StyleSheet.create({
   },
   toggleTextActive: {
     color: '#08111c',
+  },
+  selectionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  dropdownContainer: {
+    marginLeft: 'auto',
+    zIndex: 20,
+  },
+  dropdownToggle: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#fff',
+    borderRadius: 4,
+  },
+  dropdownMenu: {
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    backgroundColor: '#08111c',
+    borderColor: '#fff',
+    borderWidth: 1,
+    zIndex: 30,
+  },
+  dropdownOption: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
   },
 });
