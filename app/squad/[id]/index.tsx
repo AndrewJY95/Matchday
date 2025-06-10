@@ -9,7 +9,8 @@ interface Fixture {
 }
 
 export default function SquadScreen() {
-  const { id } = useLocalSearchParams();
+  const { id: rawId } = useLocalSearchParams();
+  const id = Array.isArray(rawId) ? rawId[0] : rawId;
   const router = useRouter();
 
   const [fixtures] = useState<Fixture[]>([
