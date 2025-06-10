@@ -1,51 +1,64 @@
-import React, { useRef } from 'react';
-import { Animated, StyleSheet, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 interface Props {
   available: boolean;
-  onToggle: () => void;
+  onToggle: (value: boolean) => void;
 }
 
 export default function AvailabilityToggle({ available, onToggle }: Props) {
-  const scale = useRef(new Animated.Value(1)).current;
-
-  const handlePress = () => {
-    Animated.sequence([
-      Animated.timing(scale, {
-        toValue: 0.8,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.spring(scale, {
-        toValue: 1,
-        useNativeDriver: true,
-      }),
-    ]).start();
-    onToggle();
-  };
-
-  const backgroundColor = available ? '#4CAF50' : '#F44336';
-  const icon = available ? 'checkmark' : 'close';
-
   return (
-    <Animated.View style={{ transform: [{ scale }] }}>
+    <View style={styles.container}>
       <TouchableOpacity
-        style={[styles.button, { backgroundColor }]}
-        onPress={handlePress}
+        style={[
+          styles.button,
+          available ? styles.available : styles.unselected,
+        ]}
+        onPress={() => onToggle(true)}
       >
-        <Ionicons name={icon} size={20} color="#fff" />
+        <Ionicons
+          name="checkmark"
+          size={20}
+          color={available ? '#fff' : '#4CAF50'}
+        />
       </TouchableOpacity>
-    </Animated.View>
+      <TouchableOpacity
+        style={[
+          styles.button,
+          !available ? styles.unavailable : styles.unselected,
+        ]}
+        onPress={() => onToggle(false)}
+      >
+        <Ionicons
+          name="close"
+          size={20}
+          color={!available ? '#fff' : '#F44336'}
+        />
+      </TouchableOpacity>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+  },
   button: {
     width: 36,
     height: 36,
-    borderRadius: 18,
+    borderRadius: 4,
     justifyContent: 'center',
     alignItems: 'center',
+    marginHorizontal: 2,
+  },
+  available: {
+    backgroundColor: '#4CAF50',
+  },
+  unavailable: {
+    backgroundColor: '#F44336',
+  },
+  unselected: {
+    backgroundColor: '#333',
   },
 });
