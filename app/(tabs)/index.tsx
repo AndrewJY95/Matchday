@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import AvailabilityToggle from '../../components/AvailabilityToggle';
 
 interface Squad {
   id: string;
@@ -42,6 +43,11 @@ export default function SquadsScreen() {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [newSquadName, setNewSquadName] = useState('');
+  const [availability, setAvailability] = useState<Record<string, boolean>>({});
+
+  const toggleAvailability = (squadId: string) => {
+    setAvailability((prev) => ({ ...prev, [squadId]: !prev[squadId] }));
+  };
 
   const handleCreateSquad = () => {
     if (newSquadName.trim()) {
@@ -139,6 +145,12 @@ export default function SquadsScreen() {
                   <TouchableOpacity style={styles.actionButton}>
                     <Text style={styles.actionButtonText}>View Details</Text>
                   </TouchableOpacity>
+                  <View style={styles.availabilityWrapper}>
+                    <AvailabilityToggle
+                      available={!!availability[squad.id]}
+                      onToggle={() => toggleAvailability(squad.id)}
+                    />
+                  </View>
                 </View>
               </TouchableOpacity>
             ))}
@@ -330,6 +342,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 8,
+  },
+  availabilityWrapper: {
+    marginLeft: 10,
   },
   actionButtonText: {
     color: '#fff',
