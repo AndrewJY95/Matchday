@@ -11,6 +11,7 @@ export default function AvailabilityToggle({ available, onToggle }: Props) {
   return (
     <View style={styles.container}>
       <TouchableOpacity
+        testID="available-button"
         style={[
           styles.button,
           available ? styles.available : styles.unselected,
@@ -24,6 +25,7 @@ export default function AvailabilityToggle({ available, onToggle }: Props) {
         />
       </TouchableOpacity>
       <TouchableOpacity
+        testID="unavailable-button"
         style={[
           styles.button,
           !available ? styles.unavailable : styles.unselected,

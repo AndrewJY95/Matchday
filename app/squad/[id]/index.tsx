@@ -9,7 +9,8 @@ interface Fixture {
 }
 
 export default function SquadScreen() {
-  const { id } = useLocalSearchParams();
+  const params = useLocalSearchParams();
+  const squadId = Array.isArray(params.id) ? params.id[0] : params.id;
   const router = useRouter();
 
   const [fixtures] = useState<Fixture[]>([
@@ -25,7 +26,7 @@ export default function SquadScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Squad {id}</Text>
+      <Text style={styles.title}>Squad {squadId}</Text>
 
       <FlatList
         data={fixtures}
@@ -47,13 +48,6 @@ export default function SquadScreen() {
         )}
         contentContainerStyle={styles.fixtureList}
       />
-
-      <TouchableOpacity
-        style={styles.playersButton}
-        onPress={() => router.push({ pathname: '/squad/[id]/players', params: { id } })}
-      >
-        <Text style={styles.playersButtonText}>View Players</Text>
-      </TouchableOpacity>
     </View>
   );
 }
@@ -92,17 +86,5 @@ const styles = StyleSheet.create({
   availabilityButtonText: {
     color: '#fff',
     fontWeight: 'bold',
-  },
-  playersButton: {
-    backgroundColor: '#2196F3',
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  playersButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
   },
 });

@@ -48,15 +48,16 @@ export default function UserProfileModal() {
       setVisible(false);
     }
   };
-
   const renderPositions = (
     value: string,
     setValue: React.Dispatch<React.SetStateAction<string>>,
+    isPrimary: boolean = false
   ) => (
     <View style={styles.positionGrid}>
       {positions.map((pos) => (
         <TouchableOpacity
           key={pos}
+          testID={`${isPrimary ? 'primary' : 'secondary'}-position-${pos}`}
           style={[
             styles.positionItem,
             value === pos && styles.selectedPosition,
@@ -145,8 +146,7 @@ export default function UserProfileModal() {
   // Ensure JSX elements are properly closed
   return (
     <Modal visible={visible} transparent animationType="slide">
-      <View style={styles.overlay}>
-        <ScrollView contentContainerStyle={styles.modalContent}>
+      <View style={styles.overlay}>        <ScrollView contentContainerStyle={styles.modalContent} testID="modal-content">
           <Text style={styles.title}>Welcome! Tell us about you</Text>
           <TextInput
             style={styles.input}
@@ -161,11 +161,10 @@ export default function UserProfileModal() {
             placeholderTextColor="#888"
             value={location}
             onChangeText={setLocation}
-          />
-          <Text style={styles.sectionTitle}>Primary Position</Text>
-          {renderPositions(primary, setPrimary)}
+          />          <Text style={styles.sectionTitle}>Primary Position</Text>
+          {renderPositions(primary, setPrimary, true)}
           <Text style={styles.sectionTitle}>Secondary Position</Text>
-          {renderPositions(secondary, setSecondary)}
+          {renderPositions(secondary, setSecondary, false)}
           <TouchableOpacity style={styles.saveButton} onPress={saveProfile}>
             <Text style={styles.saveButtonText}>Save</Text>
           </TouchableOpacity>
