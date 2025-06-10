@@ -66,7 +66,7 @@ export default function SquadScreen() {
         <View style={styles.dropdownContainer}>
           <Pressable onPress={() => setShowDropdown(!showDropdown)} style={styles.dropdownToggle}>
             <Text style={styles.toggleText}>{playerCount} Players ▾</Text>
-          </Pressable>          {showDropdown && (
+          </Pressable>{showDropdown && (
             <View style={[styles.dropdownMenu, { elevation: 1000 }]}>
               {[5,6,7,8,9,10,11].map(n => (
                 <Pressable 
@@ -90,7 +90,8 @@ export default function SquadScreen() {
   );
 }
 
-const styles = StyleSheet.create({  container: {
+const styles = StyleSheet.create({  
+  container: {
     flexGrow: 1,
     backgroundColor: '#08111c',
     padding: 16,
