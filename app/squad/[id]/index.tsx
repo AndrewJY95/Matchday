@@ -31,9 +31,7 @@ export default function SquadScreen() {
   return (
     <ScrollView
       contentContainerStyle={styles.container}
-      showsVerticalScrollIndicator={false}
-    >
-      <Text style={styles.title}>Squad {squadId}</Text>
+      showsVerticalScrollIndicator={false}>
       <View style={styles.toggleContainer}>
         <Pressable
           onPress={() => setActiveTeam('Home')}
