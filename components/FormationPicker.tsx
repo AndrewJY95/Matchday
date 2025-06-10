@@ -1,188 +1,185 @@
-import React, { useRef, useState, useCallback, useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  PanResponder,
-  LayoutRectangle,
-  PanResponderGestureState,
-} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Platform, Pressable } from 'react-native';
 
+const POSITION_SIZE = 40;
+
+// Types
 interface Player {
   id: string;
+  number: string;
+  color?: string;
   name: string;
+}
+
+interface Position {
+  id: PositionId;
+  x: number;
+  y: number;
+  label: string;
+  player?: Player;
 }
 
 type PositionId = 'GK' | 'LB' | 'LCB' | 'RCB' | 'RB' | 'DM' | 'LM' | 'RM' | 'AM' | 'CF1' | 'CF2';
 
-interface Position {
-  id: PositionId;
-  label: string;
-  player?: Player;
-  layout?: LayoutRectangle;
-}
-
-const DEFAULT_PLAYERS: Player[] = [
-  { id: '1', name: 'Player 1' },
-  { id: '2', name: 'Player 2' },
-  { id: '3', name: 'Player 3' },
-  { id: '4', name: 'Player 4' },
-  { id: '5', name: 'Player 5' },
-  { id: '6', name: 'Player 6' },
-  { id: '7', name: 'Player 7' },
-  { id: '8', name: 'Player 8' },
-  { id: '9', name: 'Player 9' },
-  { id: '10', name: 'Player 10' },
-  { id: '11', name: 'Player 11' },
+const initialPlayers: Player[] = [
+  { id: '1', name: 'Player 1', number: '1' },
+  { id: '2', name: 'Player 2', number: '2' },
+  { id: '3', name: 'Player 3', number: '3' },
+  { id: '4', name: 'Player 4', number: '4' },
+  { id: '5', name: 'Player 5', number: '5' },
+  { id: '6', name: 'Player 6', number: '6' },
+  { id: '7', name: 'Player 7', number: '7' },
+  { id: '8', name: 'Player 8', number: '8' },
+  { id: '9', name: 'Player 9', number: '9' },
+  { id: '10', name: 'Player 10', number: '10' },
+  { id: '11', name: 'Player 11', number: '11' },
 ];
 
+const initialPositions: Position[] = [
+  { id: 'GK', label: 'GK', x: 50, y: 90 },
+  { id: 'LB', label: 'LB', x: 20, y: 70 },
+  { id: 'LCB', label: 'CB', x: 35, y: 70 },
+  { id: 'RCB', label: 'CB', x: 65, y: 70 },
+  { id: 'RB', label: 'RB', x: 80, y: 70 },
+  { id: 'DM', label: 'DM', x: 50, y: 50 },
+  { id: 'LM', label: 'LM', x: 20, y: 40 },
+  { id: 'RM', label: 'RM', x: 80, y: 40 },
+  { id: 'AM', label: 'AM', x: 50, y: 30 },
+  { id: 'CF1', label: 'CF', x: 35, y: 20 },
+  { id: 'CF2', label: 'CF', x: 65, y: 20 },
+];
+
+interface PlayerDotProps {
+  player: Player;
+  fromPosition?: Position;
+  isSelected?: boolean;
+  onPress: () => void;
+}
+
 export default function FormationPicker() {
-  const pitchRef = useRef<View>(null);
-  const listRef = useRef<View>(null);
+  const [players, setPlayers] = useState<Player[]>(initialPlayers);
+  const [positions, setPositions] = useState<Position[]>(initialPositions);
+  const [selectedPlayer, setSelectedPlayer] = useState<{ player: Player, fromPosition?: Position } | null>(null);
 
-  const [players, setPlayers] = useState<Player[]>(DEFAULT_PLAYERS);
-  const [positions, setPositions] = useState<Position[]>([
-    { id: 'GK', label: 'GK' },
-    { id: 'LB', label: 'LB' },
-    { id: 'LCB', label: 'CB' },
-    { id: 'RCB', label: 'CB' },
-    { id: 'RB', label: 'RB' },
-    { id: 'DM', label: 'DM' },
-    { id: 'LM', label: 'LM' },
-    { id: 'RM', label: 'RM' },
-    { id: 'AM', label: 'AM' },
-    { id: 'CF1', label: 'CF' },
-    { id: 'CF2', label: 'CF' },
-  ]);
-
-  const handleDrop = useCallback((
-    gesture: PanResponderGestureState,
-    player: Player,
-    fromPositionId?: PositionId,
-  ) => {
-    if (!pitchRef.current) return;
-
-    pitchRef.current.measure((_, __, width, height, pageX, pageY) => {
-      // Get absolute position where the player was dropped
-      const dropX = gesture.moveX - pageX;
-      const dropY = gesture.moveY - pageY;
-
-      // Find position that matches drop coordinates
-      const dropPosition = positions.find((pos) => {
-        const layout = pos.layout;
-        if (!layout) return false;
-
-        // Add padding around the drop target to make it easier to hit
-        const padding = 20;
-        return (
-          dropX >= layout.x - padding &&
-          dropX <= layout.x + layout.width + padding &&
-          dropY >= layout.y - padding &&
-          dropY <= layout.y + layout.height + padding
-        );
-      });
-
-      if (dropPosition) {
-        // Handle any existing player in the target position
-        const targetPosition = positions.find(p => p.id === dropPosition.id);
-        if (targetPosition?.player && !fromPositionId) {
-          setPlayers(prev => [...prev, targetPosition.player!]);
+  const handlePositionPress = (position: Position) => {
+    if (selectedPlayer) {
+      // If there's already a player in the target position
+      if (position.player) {
+        // If the dragged player is from another position, swap them
+        if (selectedPlayer.fromPosition) {
+          setPositions(prev =>
+            prev.map(pos => {
+              if (pos.id === position.id) return { ...pos, player: selectedPlayer.player };
+              if (pos.id === selectedPlayer.fromPosition!.id) return { ...pos, player: position.player };
+              return pos;
+            })
+          );
+        } else {
+          // If the dragged player is from the list, add current position player back to list
+          setPlayers(prev => [...prev, position.player!]);
+          setPositions(prev =>
+            prev.map(pos =>
+              pos.id === position.id ? { ...pos, player: selectedPlayer.player } : pos
+            )
+          );
+          setPlayers(prev => prev.filter(p => p.id !== selectedPlayer.player.id));
         }
-
-        // Update positions array
-        setPositions(prev => 
+      } else {
+        // Position is empty, simply place the player
+        setPositions(prev =>
           prev.map(pos => {
-            if (pos.id === dropPosition.id) {
-              // Add player to new position
-              return { ...pos, player };
-            }
-            if (fromPositionId && pos.id === fromPositionId) {
-              // Remove player from old position
+            if (pos.id === position.id) return { ...pos, player: selectedPlayer.player };
+            if (selectedPlayer.fromPosition && pos.id === selectedPlayer.fromPosition.id) {
               return { ...pos, player: undefined };
             }
             return pos;
           })
         );
-
-        // If dragging from player list, remove from available players
-        if (!fromPositionId) {
-          setPlayers(prev => prev.filter(p => p.id !== player.id));
+        
+        // If player came from the list, remove them from it
+        if (!selectedPlayer.fromPosition) {
+          setPlayers(prev => prev.filter(p => p.id !== selectedPlayer.player.id));
         }
-      } else if (fromPositionId) {
-        // If dropped outside positions and was dragged from a position,
-        // move player back to available list
-        setPositions(prev =>
-          prev.map(pos =>
-            pos.id === fromPositionId ? { ...pos, player: undefined } : pos
-          )
-        );
-        setPlayers(prev => [...prev, player]);
       }
-    });
-  }, [positions]);
-
-  const renderPlayer = (player: Player, fromPositionId?: PositionId) => {
-    const pan = useRef(new Animated.ValueXY()).current;
-
-    const panResponder = useMemo(
-      () =>
-        PanResponder.create({
-          onStartShouldSetPanResponder: () => true,
-          onPanResponderMove: (_, gesture) => {
-            pan.setValue({
-              x: gesture.dx,
-              y: gesture.dy,
-            });
-          },
-          onPanResponderRelease: (_, gesture) => {
-            handleDrop(gesture, player, fromPositionId);
-            Animated.spring(pan, {
-              toValue: { x: 0, y: 0 },
-              useNativeDriver: false,
-              friction: 5,
-            }).start();
-          },
-        }),
-      [handleDrop, fromPositionId],
-    );
-
-    return (
-      <Animated.View
-        key={player.id}
-        style={[styles.playerToken, pan.getLayout()]}
-        {...panResponder.panHandlers}
-      >
-        <Text selectable={false} style={[styles.playerName, { userSelect: 'none' }]}>{player.name}</Text>
-      </Animated.View>
-    );
+      setSelectedPlayer(null);
+    } else if (position.player) {
+      setSelectedPlayer({ player: position.player, fromPosition: position });
+    }
   };
+
+  const handlePlayerPress = (player: Player) => {
+    if (selectedPlayer?.player.id === player.id) {
+      setSelectedPlayer(null);
+    } else {
+      setSelectedPlayer({ player });
+    }
+  };
+
+  const PlayerDot: React.FC<PlayerDotProps> = ({ player, isSelected, onPress }) => (
+    <Pressable
+      onPress={onPress}
+      style={[
+        styles.playerDot,
+        { backgroundColor: player.color || '#fff' },
+        { elevation: 5 },
+        isSelected && styles.selectedPlayer,
+        Platform.OS === 'ios' ? {
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.25,
+          shadowRadius: 3.84,
+        } : {},
+      ]}
+    >
+      <Text style={styles.playerText}>{player.number}</Text>
+    </Pressable>
+  );
 
   return (
     <View style={styles.container}>
-      <View ref={pitchRef} style={styles.pitch}>
-        {positions.map((pos) => (
-          <View
-            key={pos.id}
-            style={[styles.position, positionStyles[pos.id]]}
-            onLayout={(e) => {
-              const layout = e.nativeEvent.layout;
-              setPositions((prev) =>
-                prev.map((p) =>
-                  p.id === pos.id ? { ...p, layout } : p,
-                ),
-              );
-            }}
+      <View style={styles.pitch}>
+        {positions.map((position) => (
+          <Pressable
+            key={position.id}
+            onPress={() => handlePositionPress(position)}
+            style={[
+              styles.position,
+              {
+                left: `${position.x}%`,
+                top: `${position.y}%`,
+                transform: [
+                  { translateX: -POSITION_SIZE / 2 },
+                  { translateY: -POSITION_SIZE / 2 },
+                ],
+              },
+            ]}
           >
-            {pos.player ? (
-              renderPlayer(pos.player, pos.id)
-            ) : (
-              <Text selectable={false} style={[styles.positionLabel, { userSelect: 'none' }]}> {pos.label} </Text>
-            )}
+            <View style={[styles.positionDot, selectedPlayer && !position.player && styles.dropTarget]}>
+              {position.player ? (
+                <PlayerDot 
+                  player={position.player}
+                  fromPosition={position}
+                  isSelected={selectedPlayer?.player.id === position.player.id}
+                  onPress={() => handlePositionPress(position)}
+                />
+              ) : (
+                <Text style={styles.positionLabel}>{position.label}</Text>
+              )}
+            </View>
+          </Pressable>
+        ))}
+      </View>
+      <View style={styles.playerList}>
+        {players.map((player) => (
+          <View key={player.id} style={styles.playerWrapper}>
+            <PlayerDot
+              player={player}
+              isSelected={selectedPlayer?.player.id === player.id}
+              onPress={() => handlePlayerPress(player)}
+            />
           </View>
         ))}
       </View>
-      <View ref={listRef} style={styles.playerList}>{players.map((p) => renderPlayer(p))}</View>
     </View>
   );
 }
@@ -190,63 +187,69 @@ export default function FormationPicker() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    backgroundColor: '#fff',
   },
   pitch: {
     width: '100%',
-    aspectRatio: 0.55,
-    backgroundColor: '#0b6623',
-    borderColor: '#fff',
-    borderWidth: 2,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  position: {
-    position: 'absolute',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#1a1a2e',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#fff',
-  },
-  positionLabel: {
-    color: '#fff',
-    fontSize: 10,
-    textAlign: 'center',
+    aspectRatio: 2/3,
+    backgroundColor: '#4a8',
+    position: 'relative',
   },
   playerList: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    padding: 10,
+    gap: 10,
+  },
+  playerWrapper: {
+    marginHorizontal: 5,
+  },
+  position: {
+    position: 'absolute',
+    width: POSITION_SIZE,
+    height: POSITION_SIZE,
     justifyContent: 'center',
+    alignItems: 'center',
   },
-  playerToken: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    margin: 4,
+  positionDot: {
+    width: POSITION_SIZE,
+    height: POSITION_SIZE,
+    borderRadius: POSITION_SIZE / 2,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  playerName: {
+  positionLabel: {
     color: '#fff',
     fontSize: 12,
+    fontWeight: 'bold',
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 1,
   },
-});
-
-const positionStyles = StyleSheet.create({
-  GK: { bottom: '5%', left: '50%', marginLeft: -20 },
-  LB: { bottom: '25%', left: '15%', marginLeft: -20 },
-  LCB: { bottom: '30%', left: '35%', marginLeft: -20 },
-  RCB: { bottom: '30%', left: '65%', marginLeft: -20 },
-  RB: { bottom: '25%', left: '85%', marginLeft: -20 },
-  DM: { bottom: '45%', left: '50%', marginLeft: -20 },
-  LM: { bottom: '55%', left: '25%', marginLeft: -20 },
-  RM: { bottom: '55%', left: '75%', marginLeft: -20 },
-  AM: { bottom: '65%', left: '50%', marginLeft: -20 },
-  CF1: { bottom: '80%', left: '40%', marginLeft: -20 },
-  CF2: { bottom: '80%', left: '60%', marginLeft: -20 },
+  playerDot: {
+    width: POSITION_SIZE,
+    height: POSITION_SIZE,
+    borderRadius: POSITION_SIZE / 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  playerText: {
+    color: '#000',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  selectedPlayer: {
+    borderColor: '#007AFF',
+    borderWidth: 2,
+    opacity: 0.8,
+  },
+  dropTarget: {
+    borderColor: '#007AFF',
+    borderWidth: 2,
+    borderStyle: 'dashed',
+  },
 });
 
