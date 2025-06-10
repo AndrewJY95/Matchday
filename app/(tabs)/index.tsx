@@ -45,8 +45,8 @@ export default function SquadsScreen() {
   const [newSquadName, setNewSquadName] = useState('');
   const [availability, setAvailability] = useState<Record<string, boolean>>({});
 
-  const toggleAvailability = (squadId: string) => {
-    setAvailability((prev) => ({ ...prev, [squadId]: !prev[squadId] }));
+  const setSquadAvailability = (squadId: string, value: boolean) => {
+    setAvailability((prev) => ({ ...prev, [squadId]: value }));
   };
 
   const handleCreateSquad = () => {
@@ -148,7 +148,7 @@ export default function SquadsScreen() {
                   <View style={styles.availabilityWrapper}>
                     <AvailabilityToggle
                       available={!!availability[squad.id]}
-                      onToggle={() => toggleAvailability(squad.id)}
+                      onToggle={(value) => setSquadAvailability(squad.id, value)}
                     />
                   </View>
                 </View>
@@ -343,8 +343,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
   },
-  availabilityButton: {
-    backgroundColor: '#2196F3',
+  availabilityWrapper: {
+    flexDirection: 'row',
     marginLeft: 10,
   },
   actionButtonText: {
