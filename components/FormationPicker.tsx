@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, Platform, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Platform, Dimensions, TouchableOpacity, Image } from 'react-native';
 import {
   GestureHandlerRootView,
   PanGestureHandler,
@@ -68,6 +68,7 @@ const styles = StyleSheet.create({
     width: POSITION_SIZE,
     height: POSITION_SIZE,
     borderRadius: POSITION_SIZE / 2,
+    overflow: 'hidden',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#fff',
@@ -87,6 +88,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     backgroundColor: 'rgba(0,122,255,0.1)',
   },
+  playerCardImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
 });
 
 // Types
@@ -105,7 +112,23 @@ export interface Position {
   player?: Player;
 }
 
-type PositionId = 'GK' | 'LB' | 'LCB' | 'RCB' | 'RB' | 'DM' | 'LM' | 'RM' | 'AM' | 'CF1' | 'CF2';
+type PositionId =
+  | 'GK'
+  | 'LB'
+  | 'LCB'
+  | 'RCB'
+  | 'RB'
+  | 'CB'
+  | 'DM'
+  | 'CM'
+  | 'LM'
+  | 'RM'
+  | 'AM'
+  | 'LW'
+  | 'RW'
+  | 'CF'
+  | 'CF1'
+  | 'CF2';
 
 export const initialPlayers: Player[] = [
   { id: '1', name: 'Player 1', number: '1' },
@@ -121,19 +144,81 @@ export const initialPlayers: Player[] = [
   { id: '11', name: 'Player 11', number: '11' },
 ];
 
-export const initialPositions: Position[] = [
-  { id: 'GK', label: 'GK', x: 50, y: 90 },
-  { id: 'LB', label: 'LB', x: 20, y: 70 },
-  { id: 'LCB', label: 'CB', x: 35, y: 70 },
-  { id: 'RCB', label: 'CB', x: 65, y: 70 },
-  { id: 'RB', label: 'RB', x: 80, y: 70 },
-  { id: 'DM', label: 'DM', x: 50, y: 50 },
-  { id: 'LM', label: 'LM', x: 20, y: 40 },
-  { id: 'RM', label: 'RM', x: 80, y: 40 },
-  { id: 'AM', label: 'AM', x: 50, y: 30 },
-  { id: 'CF1', label: 'CF', x: 35, y: 20 },
-  { id: 'CF2', label: 'CF', x: 65, y: 20 },
-];
+export const formationPositions: Record<number, Position[]> = {
+  5: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'CB', label: 'CB', x: 50, y: 70 },
+    { id: 'LM', label: 'LM', x: 30, y: 50 },
+    { id: 'RM', label: 'RM', x: 70, y: 50 },
+    { id: 'CF', label: 'CF', x: 50, y: 30 },
+  ],
+  6: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'LCB', label: 'CB', x: 40, y: 70 },
+    { id: 'RCB', label: 'CB', x: 60, y: 70 },
+    { id: 'LM', label: 'LM', x: 30, y: 50 },
+    { id: 'RM', label: 'RM', x: 70, y: 50 },
+    { id: 'CF', label: 'CF', x: 50, y: 30 },
+  ],
+  7: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'LCB', label: 'CB', x: 40, y: 70 },
+    { id: 'RCB', label: 'CB', x: 60, y: 70 },
+    { id: 'LM', label: 'LM', x: 25, y: 55 },
+    { id: 'CM', label: 'CM', x: 50, y: 55 },
+    { id: 'RM', label: 'RM', x: 75, y: 55 },
+    { id: 'CF', label: 'CF', x: 50, y: 35 },
+  ],
+  8: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'LB', label: 'LB', x: 20, y: 70 },
+    { id: 'CB', label: 'CB', x: 50, y: 70 },
+    { id: 'RB', label: 'RB', x: 80, y: 70 },
+    { id: 'LM', label: 'LM', x: 30, y: 50 },
+    { id: 'CM', label: 'CM', x: 50, y: 50 },
+    { id: 'RM', label: 'RM', x: 70, y: 50 },
+    { id: 'CF', label: 'CF', x: 50, y: 30 },
+  ],
+  9: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'LB', label: 'LB', x: 20, y: 70 },
+    { id: 'CB', label: 'CB', x: 50, y: 70 },
+    { id: 'RB', label: 'RB', x: 80, y: 70 },
+    { id: 'CM', label: 'CM', x: 40, y: 55 },
+    { id: 'DM', label: 'DM', x: 60, y: 60 },
+    { id: 'LW', label: 'LW', x: 30, y: 40 },
+    { id: 'CF', label: 'CF', x: 50, y: 35 },
+    { id: 'RW', label: 'RW', x: 70, y: 40 },
+  ],
+ 10: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'LB', label: 'LB', x: 20, y: 70 },
+    { id: 'LCB', label: 'CB', x: 40, y: 70 },
+    { id: 'RCB', label: 'CB', x: 60, y: 70 },
+    { id: 'RB', label: 'RB', x: 80, y: 70 },
+    { id: 'LM', label: 'LM', x: 30, y: 50 },
+    { id: 'CM', label: 'CM', x: 50, y: 50 },
+    { id: 'RM', label: 'RM', x: 70, y: 50 },
+    { id: 'CF1', label: 'CF', x: 45, y: 30 },
+    { id: 'CF2', label: 'CF', x: 55, y: 30 },
+  ],
+ 11: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'LB', label: 'LB', x: 20, y: 70 },
+    { id: 'LCB', label: 'CB', x: 35, y: 70 },
+    { id: 'RCB', label: 'CB', x: 65, y: 70 },
+    { id: 'RB', label: 'RB', x: 80, y: 70 },
+    { id: 'DM', label: 'DM', x: 50, y: 50 },
+    { id: 'LM', label: 'LM', x: 20, y: 40 },
+    { id: 'RM', label: 'RM', x: 80, y: 40 },
+    { id: 'AM', label: 'AM', x: 50, y: 30 },
+    { id: 'CF1', label: 'CF', x: 35, y: 20 },
+    { id: 'CF2', label: 'CF', x: 65, y: 20 },
+  ],
+};
+
+export const initialPositions: Position[] = formationPositions[11];
+
 
 interface PlayerDotProps {
   player: Player;
@@ -217,6 +302,7 @@ const PlayerDot = React.memo<PlayerDotProps>(({
           animatedStyle,
         ]}
       >
+        <Image source={require('@/assets/images/player-card.png')} style={styles.playerCardImage} />
         <Text numberOfLines={1} style={styles.playerText}>{player.number}</Text>
       </AnimatedView>
     </PanGestureHandler>
