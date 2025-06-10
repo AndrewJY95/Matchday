@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import AvailabilityToggle from '../../components/AvailabilityToggle';
 
 interface Squad {
   id: string;
@@ -144,14 +145,12 @@ export default function SquadsScreen() {
                   <TouchableOpacity style={styles.actionButton}>
                     <Text style={styles.actionButtonText}>View Details</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.actionButton, styles.availabilityButton]}
-                    onPress={() => toggleAvailability(squad.id)}
-                  >
-                    <Text style={styles.actionButtonText}>
-                      {availability[squad.id] ? 'Available' : 'Set Availability'}
-                    </Text>
-                  </TouchableOpacity>
+                  <View style={styles.availabilityWrapper}>
+                    <AvailabilityToggle
+                      available={!!availability[squad.id]}
+                      onToggle={() => toggleAvailability(squad.id)}
+                    />
+                  </View>
                 </View>
               </TouchableOpacity>
             ))}
