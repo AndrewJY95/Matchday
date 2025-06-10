@@ -108,12 +108,14 @@ const FormationPicker: React.FC<FormationPickerProps> = ({
   onChange 
 }) => {
   return (
-    <View style={styles.container}>      <View style={styles.pitch}>
-        <Image 
+    <View style={styles.container}>
+      <View style={styles.pitch}>
+        <Image
           source={require('@/assets/images/pitch.png')}
           style={[styles.pitchImage, { resizeMode: 'contain' }]}
         />
-      </View>      <View style={styles.playerList}>
+      </View>
+      <View style={styles.playerList}>
         {players.slice(0, positions?.length || players.length).map(player => (
           <Pressable key={player.id} style={styles.playerItem}>
             <Text style={styles.playerName}>{player.name}</Text>
