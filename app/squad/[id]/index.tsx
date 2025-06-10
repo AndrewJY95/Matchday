@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import FormationPicker from '@/components/FormationPicker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
 interface Fixture {
@@ -27,6 +28,8 @@ export default function SquadScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Squad {squadId}</Text>
+
+      <FormationPicker />
 
       <FlatList
         data={fixtures}
