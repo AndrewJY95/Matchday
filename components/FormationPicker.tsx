@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -56,7 +56,7 @@ export default function FormationPicker() {
     { id: 'CF2', label: 'CF' },
   ]);
 
-  const handleDrop = (
+  const handleDrop = useCallback((
     gesture: PanResponderGestureState,
     player: Player,
     fromPositionId?: PositionId,
@@ -120,30 +120,32 @@ export default function FormationPicker() {
         setPlayers(prev => [...prev, player]);
       }
     });
-  };
+  }, [positions]);
 
   const renderPlayer = (player: Player, fromPositionId?: PositionId) => {
     const pan = useRef(new Animated.ValueXY()).current;
 
-    const panResponder = useRef(
-      PanResponder.create({
-        onStartShouldSetPanResponder: () => true,
-        onPanResponderMove: (_, gesture) => {
-          pan.setValue({
-            x: gesture.dx,
-            y: gesture.dy
-          });
-        },
-        onPanResponderRelease: (_, gesture) => {
-          handleDrop(gesture, player, fromPositionId as PositionId);
-          Animated.spring(pan, {
-            toValue: { x: 0, y: 0 },
-            useNativeDriver: false,
-            friction: 5
-          }).start();
-        },
-      }),
-    ).current;
+    const panResponder = useMemo(
+      () =>
+        PanResponder.create({
+          onStartShouldSetPanResponder: () => true,
+          onPanResponderMove: (_, gesture) => {
+            pan.setValue({
+              x: gesture.dx,
+              y: gesture.dy,
+            });
+          },
+          onPanResponderRelease: (_, gesture) => {
+            handleDrop(gesture, player, fromPositionId);
+            Animated.spring(pan, {
+              toValue: { x: 0, y: 0 },
+              useNativeDriver: false,
+              friction: 5,
+            }).start();
+          },
+        }),
+      [handleDrop, fromPositionId],
+    );
 
     return (
       <Animated.View
@@ -187,11 +189,13 @@ export default function FormationPicker() {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
   pitch: {
     width: '100%',
-    aspectRatio: 0.65,
+    aspectRatio: 0.55,
     backgroundColor: '#0b6623',
     borderColor: '#fff',
     borderWidth: 2,
