@@ -66,11 +66,14 @@ export default function SquadScreen() {
         <View style={styles.dropdownContainer}>
           <Pressable onPress={() => setShowDropdown(!showDropdown)} style={styles.dropdownToggle}>
             <Text style={styles.toggleText}>{playerCount} Players ▾</Text>
-          </Pressable>
-          {showDropdown && (
-            <View style={styles.dropdownMenu}>
+          </Pressable>          {showDropdown && (
+            <View style={[styles.dropdownMenu, { elevation: 1000 }]}>
               {[5,6,7,8,9,10,11].map(n => (
-                <Pressable key={n} onPress={() => {setPlayerCount(n); setShowDropdown(false);}} style={styles.dropdownOption}>
+                <Pressable 
+                  key={n} 
+                  onPress={() => {setPlayerCount(n); setShowDropdown(false);}} 
+                  style={styles.dropdownOption}
+                >
                   <Text style={styles.toggleText}>{n} Players</Text>
                 </Pressable>
               ))}
@@ -87,11 +90,11 @@ export default function SquadScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
+const styles = StyleSheet.create({  container: {
     flexGrow: 1,
     backgroundColor: '#08111c',
     padding: 16,
+    position: 'relative',
   },
   title: {
     fontSize: 24,
@@ -122,16 +125,17 @@ const styles = StyleSheet.create({
   },
   toggleTextActive: {
     color: '#08111c',
-  },
-  selectionRow: {
+  },  selectionRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
+    position: 'relative',
+    elevation: 999,
   },
   dropdownContainer: {
     marginLeft: 'auto',
-    zIndex: 20,
+    elevation: 1000,
   },
   dropdownToggle: {
     paddingVertical: 6,
@@ -139,15 +143,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#fff',
     borderRadius: 4,
+    backgroundColor: '#08111c',
   },
   dropdownMenu: {
     position: 'absolute',
     top: '100%',
-    left: 0,
+    right: 0, // Align with right edge of toggle
     backgroundColor: '#08111c',
     borderColor: '#fff',
     borderWidth: 1,
-    zIndex: 30,
+    minWidth: '100%', // At least as wide as the toggle
+    elevation: 1001,
   },
   dropdownOption: {
     paddingHorizontal: 12,
