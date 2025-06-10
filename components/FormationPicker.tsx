@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Platform, Pressable } from 'react-native';
 
 const POSITION_SIZE = 40;
 
 // Types
-interface Player {
+export interface Player {
   id: string;
   number: string;
   color?: string;
   name: string;
 }
 
-interface Position {
+export interface Position {
   id: PositionId;
   x: number;
   y: number;
@@ -21,7 +21,7 @@ interface Position {
 
 type PositionId = 'GK' | 'LB' | 'LCB' | 'RCB' | 'RB' | 'DM' | 'LM' | 'RM' | 'AM' | 'CF1' | 'CF2';
 
-const initialPlayers: Player[] = [
+export const initialPlayers: Player[] = [
   { id: '1', name: 'Player 1', number: '1' },
   { id: '2', name: 'Player 2', number: '2' },
   { id: '3', name: 'Player 3', number: '3' },
@@ -35,7 +35,7 @@ const initialPlayers: Player[] = [
   { id: '11', name: 'Player 11', number: '11' },
 ];
 
-const initialPositions: Position[] = [
+export const initialPositions: Position[] = [
   { id: 'GK', label: 'GK', x: 50, y: 90 },
   { id: 'LB', label: 'LB', x: 20, y: 70 },
   { id: 'LCB', label: 'CB', x: 35, y: 70 },
@@ -56,9 +56,24 @@ interface PlayerDotProps {
   onPress: () => void;
 }
 
-export default function FormationPicker() {
-  const [players, setPlayers] = useState<Player[]>(initialPlayers);
-  const [positions, setPositions] = useState<Position[]>(initialPositions);
+export interface FormationPickerProps {
+  players?: Player[];
+  positions?: Position[];
+  onChange?: (data: { players: Player[]; positions: Position[] }) => void;
+}
+
+export default function FormationPicker({ players: playersProp, positions: positionsProp, onChange }: FormationPickerProps) {
+  const [players, setPlayers] = useState<Player[]>(playersProp ?? initialPlayers);
+  const [positions, setPositions] = useState<Position[]>(positionsProp ?? initialPositions);
+  useEffect(() => {
+    if (playersProp) setPlayers(playersProp);
+  }, [playersProp]);
+  useEffect(() => {
+    if (positionsProp) setPositions(positionsProp);
+  }, [positionsProp]);
+  useEffect(() => {
+    onChange?.({ players, positions });
+  }, [players, positions, onChange]);
   const [selectedPlayer, setSelectedPlayer] = useState<{ player: Player, fromPosition?: Position } | null>(null);
 
   const handlePositionPress = (position: Position) => {
@@ -131,7 +146,7 @@ export default function FormationPicker() {
         } : {},
       ]}
     >
-      <Text style={styles.playerText}>{player.number}</Text>
+      <Text style={styles.playerText}>{player.name}</Text>
     </Pressable>
   );
 
@@ -191,7 +206,7 @@ const styles = StyleSheet.create({
   },
   pitch: {
     width: '100%',
-    aspectRatio: 2/3,
+    aspectRatio: 1,
     backgroundColor: '#4a8',
     position: 'relative',
   },
@@ -238,7 +253,7 @@ const styles = StyleSheet.create({
   },
   playerText: {
     color: '#000',
-    fontSize: 16,
+    fontSize: 10,
     fontWeight: 'bold',
   },
   selectedPlayer: {
