@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import {
+  ScrollView,
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native';
 import FormationPicker from '@/components/FormationPicker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 
@@ -26,7 +33,7 @@ export default function SquadScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Squad {squadId}</Text>
 
       <FormationPicker />
@@ -51,13 +58,13 @@ export default function SquadScreen() {
         )}
         contentContainerStyle={styles.fixtureList}
       />
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: '#08111c',
     padding: 16,
   },
