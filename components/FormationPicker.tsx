@@ -5,7 +5,6 @@ import {
   StyleSheet,
   Animated,
   PanResponder,
-  TouchableOpacity,
   LayoutRectangle,
   PanResponderGestureState,
 } from 'react-native';
@@ -38,6 +37,7 @@ const DEFAULT_PLAYERS: Player[] = [
 
 export default function FormationPicker() {
   const pitchRef = useRef<View>(null);
+  const listRef = useRef<View>(null);
 
   const [players, setPlayers] = useState<Player[]>(DEFAULT_PLAYERS);
   const [positions, setPositions] = useState<Position[]>([
@@ -57,6 +57,7 @@ export default function FormationPicker() {
   const handleDrop = (
     gesture: PanResponderGestureState,
     player: Player,
+    fromPositionId?: string,
   ) => {
     if (!pitchRef.current) return;
     pitchRef.current.measure((x, y, width, height, pageX, pageY) => {
@@ -74,16 +75,29 @@ export default function FormationPicker() {
       });
       if (dropPosition) {
         setPositions((prev) =>
-          prev.map((p) =>
-            p.id === dropPosition.id ? { ...p, player } : p,
-          ),
+          prev.map((p) => {
+            if (p.id === dropPosition.id) return { ...p, player };
+            if (fromPositionId && p.id === fromPositionId) return { ...p, player: undefined };
+            return p;
+          }),
         );
-        setPlayers((prev) => prev.filter((pl) => pl.id !== player.id));
+        if (!fromPositionId) {
+          setPlayers((prev) => prev.filter((pl) => pl.id !== player.id));
+        }
+        return;
+      }
+
+      // If dropped outside any position, return to list if dragging from a position
+      if (fromPositionId) {
+        setPositions((prev) =>
+          prev.map((p) => (p.id === fromPositionId ? { ...p, player: undefined } : p)),
+        );
+        setPlayers((prev) => [...prev, player]);
       }
     });
   };
 
-  const renderPlayer = (player: Player) => {
+  const renderPlayer = (player: Player, fromPositionId?: string) => {
     const pan = useRef(new Animated.ValueXY()).current;
 
     const panResponder = useRef(
@@ -94,7 +108,7 @@ export default function FormationPicker() {
           { useNativeDriver: false },
         ),
         onPanResponderRelease: (_, gesture) => {
-          handleDrop(gesture, player);
+          handleDrop(gesture, player, fromPositionId);
           Animated.spring(pan, {
             toValue: { x: 0, y: 0 },
             useNativeDriver: false,
@@ -109,7 +123,7 @@ export default function FormationPicker() {
         style={[styles.playerToken, pan.getLayout()]}
         {...panResponder.panHandlers}
       >
-        <Text style={styles.playerName}>{player.name}</Text>
+        <Text selectable={false} style={[styles.playerName, { userSelect: 'none' }]}>{player.name}</Text>
       </Animated.View>
     );
   };
@@ -130,13 +144,15 @@ export default function FormationPicker() {
               );
             }}
           >
-            <Text style={styles.positionLabel}>
-              {pos.player ? pos.player.name : pos.label}
-            </Text>
+            {pos.player ? (
+              renderPlayer(pos.player, pos.id)
+            ) : (
+              <Text selectable={false} style={[styles.positionLabel, { userSelect: 'none' }]}> {pos.label} </Text>
+            )}
           </View>
         ))}
       </View>
-      <View style={styles.playerList}>{players.map(renderPlayer)}</View>
+      <View ref={listRef} style={styles.playerList}>{players.map((p) => renderPlayer(p))}</View>
     </View>
   );
 }
