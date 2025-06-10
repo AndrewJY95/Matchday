@@ -101,8 +101,8 @@ const styles = StyleSheet.create({
   },
   toggleContainer: {
     flexDirection: 'row',
-    alignSelf: 'center',
-    marginBottom: 0,
+    flexGrow: 1,
+    justifyContent: 'center',
     borderRadius: 4,
     overflow: 'hidden',
     borderWidth: 1,
@@ -125,12 +125,13 @@ const styles = StyleSheet.create({
   },
   selectionRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 16,
   },
   dropdownContainer: {
-    marginLeft: 16,
+    marginLeft: 'auto',
+    zIndex: 20,
   },
   dropdownToggle: {
     paddingVertical: 6,
@@ -146,7 +147,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#08111c',
     borderColor: '#fff',
     borderWidth: 1,
-    zIndex: 10,
+    zIndex: 30,
   },
   dropdownOption: {
     paddingHorizontal: 12,

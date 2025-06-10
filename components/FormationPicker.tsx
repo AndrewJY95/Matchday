@@ -14,7 +14,7 @@ import Animated,
   useAnimatedGestureHandler,
 } from 'react-native-reanimated';
 
-const POSITION_SIZE = 40;
+const POSITION_SIZE = 60;
 const SPRING_CONFIG = {
   damping: 20,
   stiffness: 200,
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   },
   positionLabel: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: 'bold',
     textShadowColor: 'rgba(0,0,0,0.5)',
     textShadowOffset: { width: 1, height: 1 },
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   },
   playerText: {
     color: '#000',
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: 'bold',
   },
   selectedPlayer: {
@@ -131,17 +131,17 @@ type PositionId =
   | 'CF2';
 
 export const initialPlayers: Player[] = [
-  { id: '1', name: 'Player 1', number: '1' },
-  { id: '2', name: 'Player 2', number: '2' },
-  { id: '3', name: 'Player 3', number: '3' },
-  { id: '4', name: 'Player 4', number: '4' },
-  { id: '5', name: 'Player 5', number: '5' },
-  { id: '6', name: 'Player 6', number: '6' },
-  { id: '7', name: 'Player 7', number: '7' },
-  { id: '8', name: 'Player 8', number: '8' },
-  { id: '9', name: 'Player 9', number: '9' },
-  { id: '10', name: 'Player 10', number: '10' },
-  { id: '11', name: 'Player 11', number: '11' },
+  { id: '1', name: 'Andy', number: 'Andy' },
+  { id: '2', name: 'Tom', number: 'Tom' },
+  { id: '3', name: 'Clem', number: 'Clem' },
+  { id: '4', name: 'Russ', number: 'Russ' },
+  { id: '5', name: 'Vinny', number: 'Vinny' },
+  { id: '6', name: 'Max', number: 'Max' },
+  { id: '7', name: 'Oscar', number: 'Oscar' },
+  { id: '8', name: 'Ben', number: 'Ben' },
+  { id: '9', name: 'Luke', number: 'Luke' },
+  { id: '10', name: 'Sam', number: 'Sam' },
+  { id: '11', name: 'Theo', number: 'Theo' },
 ];
 
 export const formationPositions: Record<number, Position[]> = {
@@ -303,7 +303,7 @@ const PlayerDot = React.memo<PlayerDotProps>(({
         ]}
       >
         <Image source={require('@/assets/images/player-card.png')} style={styles.playerCardImage} />
-        <Text numberOfLines={1} style={styles.playerText}>{player.number}</Text>
+        <Text numberOfLines={1} style={styles.playerText}>{player.name}</Text>
       </AnimatedView>
     </PanGestureHandler>
   );
@@ -352,7 +352,13 @@ const PositionDot = React.memo<PositionDotProps>(({ position, isDropTarget, isSe
           isSelected={isSelected}
         />
       ) : (
-        <Text style={styles.positionLabel}>{position.label}</Text>
+        <>
+          <Image
+            source={require('@/assets/images/player-card.png')}
+            style={styles.playerCardImage}
+          />
+          <Text style={styles.positionLabel}>{position.label}</Text>
+        </>
       )}
     </Animated.View>
   );
