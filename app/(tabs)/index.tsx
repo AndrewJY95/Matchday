@@ -343,7 +343,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
   },
-  availabilityWrapper: {
+  availabilityButton: {
+    backgroundColor: '#2196F3',
     marginLeft: 10,
   },
   actionButtonText: {
