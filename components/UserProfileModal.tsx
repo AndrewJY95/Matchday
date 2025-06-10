@@ -146,7 +146,8 @@ export default function UserProfileModal() {
   // Ensure JSX elements are properly closed
   return (
     <Modal visible={visible} transparent animationType="slide">
-      <View style={styles.overlay}>        <ScrollView contentContainerStyle={styles.modalContent} testID="modal-content">
+      <View style={styles.overlay}>
+        <ScrollView contentContainerStyle={styles.modalContent} testID="modal-content">
           <Text style={styles.title}>Welcome! Tell us about you</Text>
           <TextInput
             style={styles.input}
@@ -161,7 +162,8 @@ export default function UserProfileModal() {
             placeholderTextColor="#888"
             value={location}
             onChangeText={setLocation}
-          />          <Text style={styles.sectionTitle}>Primary Position</Text>
+          />
+          <Text style={styles.sectionTitle}>Primary Position</Text>
           {renderPositions(primary, setPrimary, true)}
           <Text style={styles.sectionTitle}>Secondary Position</Text>
           {renderPositions(secondary, setSecondary, false)}
