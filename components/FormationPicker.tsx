@@ -14,8 +14,10 @@ interface Player {
   name: string;
 }
 
+type PositionId = 'GK' | 'LB' | 'LCB' | 'RCB' | 'RB' | 'DM' | 'LM' | 'RM' | 'AM' | 'CF1' | 'CF2';
+
 interface Position {
-  id: string;
+  id: PositionId;
   label: string;
   player?: Player;
   layout?: LayoutRectangle;
@@ -57,61 +59,87 @@ export default function FormationPicker() {
   const handleDrop = (
     gesture: PanResponderGestureState,
     player: Player,
-    fromPositionId?: string,
+    fromPositionId?: PositionId,
   ) => {
     if (!pitchRef.current) return;
-    pitchRef.current.measure((x, y, width, height, pageX, pageY) => {
-      const localX = gesture.moveX - pageX;
-      const localY = gesture.moveY - pageY;
-      const dropPosition = positions.find((p) => {
-        const l = p.layout;
+
+    pitchRef.current.measure((_, __, width, height, pageX, pageY) => {
+      // Get absolute position where the player was dropped
+      const dropX = gesture.moveX - pageX;
+      const dropY = gesture.moveY - pageY;
+
+      // Find position that matches drop coordinates
+      const dropPosition = positions.find((pos) => {
+        const layout = pos.layout;
+        if (!layout) return false;
+
+        // Add padding around the drop target to make it easier to hit
+        const padding = 20;
         return (
-          l &&
-          localX >= l.x &&
-          localX <= l.x + l.width &&
-          localY >= l.y &&
-          localY <= l.y + l.height
+          dropX >= layout.x - padding &&
+          dropX <= layout.x + layout.width + padding &&
+          dropY >= layout.y - padding &&
+          dropY <= layout.y + layout.height + padding
         );
       });
-      if (dropPosition) {
-        setPositions((prev) =>
-          prev.map((p) => {
-            if (p.id === dropPosition.id) return { ...p, player };
-            if (fromPositionId && p.id === fromPositionId) return { ...p, player: undefined };
-            return p;
-          }),
-        );
-        if (!fromPositionId) {
-          setPlayers((prev) => prev.filter((pl) => pl.id !== player.id));
-        }
-        return;
-      }
 
-      // If dropped outside any position, return to list if dragging from a position
-      if (fromPositionId) {
-        setPositions((prev) =>
-          prev.map((p) => (p.id === fromPositionId ? { ...p, player: undefined } : p)),
+      if (dropPosition) {
+        // Handle any existing player in the target position
+        const targetPosition = positions.find(p => p.id === dropPosition.id);
+        if (targetPosition?.player && !fromPositionId) {
+          setPlayers(prev => [...prev, targetPosition.player!]);
+        }
+
+        // Update positions array
+        setPositions(prev => 
+          prev.map(pos => {
+            if (pos.id === dropPosition.id) {
+              // Add player to new position
+              return { ...pos, player };
+            }
+            if (fromPositionId && pos.id === fromPositionId) {
+              // Remove player from old position
+              return { ...pos, player: undefined };
+            }
+            return pos;
+          })
         );
-        setPlayers((prev) => [...prev, player]);
+
+        // If dragging from player list, remove from available players
+        if (!fromPositionId) {
+          setPlayers(prev => prev.filter(p => p.id !== player.id));
+        }
+      } else if (fromPositionId) {
+        // If dropped outside positions and was dragged from a position,
+        // move player back to available list
+        setPositions(prev =>
+          prev.map(pos =>
+            pos.id === fromPositionId ? { ...pos, player: undefined } : pos
+          )
+        );
+        setPlayers(prev => [...prev, player]);
       }
     });
   };
 
-  const renderPlayer = (player: Player, fromPositionId?: string) => {
+  const renderPlayer = (player: Player, fromPositionId?: PositionId) => {
     const pan = useRef(new Animated.ValueXY()).current;
 
     const panResponder = useRef(
       PanResponder.create({
         onStartShouldSetPanResponder: () => true,
-        onPanResponderMove: Animated.event(
-          [null, { dx: pan.x, dy: pan.y }],
-          { useNativeDriver: false },
-        ),
+        onPanResponderMove: (_, gesture) => {
+          pan.setValue({
+            x: gesture.dx,
+            y: gesture.dy
+          });
+        },
         onPanResponderRelease: (_, gesture) => {
-          handleDrop(gesture, player, fromPositionId);
+          handleDrop(gesture, player, fromPositionId as PositionId);
           Animated.spring(pan, {
             toValue: { x: 0, y: 0 },
             useNativeDriver: false,
+            friction: 5
           }).start();
         },
       }),
