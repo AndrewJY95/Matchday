@@ -82,7 +82,7 @@ export default function SquadScreen() {
                 >
                   <Text style={styles.toggleText}>{n} Players</Text>
                 </Pressable>
-              ))} {/* <-- fixed closing paren here */}
+              ))}
             </View>
           )}
         </View>
@@ -140,10 +140,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     position: 'relative',
     elevation: 999,
+    zIndex: 999,
   },
   dropdownContainer: {
     marginLeft: 'auto',
     elevation: 1000,
+    zIndex: 1000,
   },
   dropdownToggle: {
     paddingVertical: 6,
@@ -162,6 +164,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     minWidth: '100%',
     elevation: 1001,
+    zIndex: 1001,
   },
   dropdownOption: {
     paddingHorizontal: 12,
