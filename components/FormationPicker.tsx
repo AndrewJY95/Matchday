@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, Platform, Pressable } from 'react-native';
+import { DraxView } from 'react-native-drax';
 
 // Types and interfaces
 export interface Player {
@@ -161,9 +162,9 @@ const styles = StyleSheet.create({
   },
   positionNode: {
     position: 'absolute',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: '#4CAF50',
     justifyContent: 'center',
     alignItems: 'center',
@@ -180,7 +181,8 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 10,
     justifyContent: 'center',
-  },  playerItem: {
+  },
+  playerItem: {
     backgroundColor: '#fff',
     padding: 10,
     borderRadius: 8,
@@ -207,23 +209,23 @@ const FormationPicker: React.FC<FormationPickerProps> = ({
   positions = initialPositions,
   onChange 
 }) => {
-  const playerNodes = positions.map((pos, index) => {
-    const player = players[index];
+  const playerNodes = positions.map((pos) => {
     return (
-      <View
+      <DraxView
         key={pos.id}
         style={[
           styles.positionNode,
           {
             left: `${pos.x}%`,
             top: `${pos.y}%`,
-            marginLeft: -20,
-            marginTop: -20,
+            marginLeft: -30,
+            marginTop: -30,
           },
         ]}
+        onReceiveDragDrop={() => {}}
       >
-        <Text style={styles.positionText}>{player ? player.name : pos.label}</Text>
-      </View>
+        <Text style={styles.positionText}>{pos.label}</Text>
+      </DraxView>
     );
   });
 
