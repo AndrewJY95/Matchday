@@ -7,6 +7,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  useWindowDimensions,
 } from 'react-native';
 import { useUserProfile, ProfileData } from './UserProfileContext';
 
@@ -19,6 +22,7 @@ export default function UserProfileModal() {
   const [location, setLocation] = useState('');
   const [primary, setPrimary] = useState('');
   const [secondary, setSecondary] = useState('');
+  const { width } = useWindowDimensions();
 
   // Show modal if no profile, or allow editing if requested
   useEffect(() => {
@@ -84,6 +88,7 @@ export default function UserProfileModal() {
       padding: 24,
       width: '100%',
       maxWidth: 400,
+      alignSelf: 'center',
     },
     title: {
       color: '#fff',
@@ -147,7 +152,18 @@ export default function UserProfileModal() {
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.overlay}>
-        <ScrollView contentContainerStyle={styles.modalContent} testID="modal-content">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{ width: '100%' }}
+        >
+          <ScrollView
+            contentContainerStyle={[
+              styles.modalContent,
+              { maxWidth: Math.min(width - 40, 400) },
+            ]}
+            testID="modal-content"
+            keyboardShouldPersistTaps="handled"
+          >
           <Text style={styles.title}>Welcome! Tell us about you</Text>
           <TextInput
             style={styles.input}
@@ -170,7 +186,8 @@ export default function UserProfileModal() {
           <TouchableOpacity style={styles.saveButton} onPress={saveProfile}>
             <Text style={styles.saveButtonText}>Save</Text>
           </TouchableOpacity>
-        </ScrollView>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </View>
     </Modal>
   );

@@ -1,5 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, Platform, Pressable } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Platform,
+  Pressable,
+  useWindowDimensions,
+} from 'react-native';
 import { DraxView } from 'react-native-drax';
 
 // Types and interfaces
@@ -141,9 +149,6 @@ const styles = StyleSheet.create({
   },
   positionNode: {
     position: 'absolute',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
     backgroundColor: '#4CAF50',
     justifyContent: 'center',
     alignItems: 'center',
@@ -165,6 +170,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     padding: 10,
     borderRadius: 8,
+    minWidth: '45%',
+    alignItems: 'center',
+    marginBottom: 8,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -188,16 +196,21 @@ const FormationPicker: React.FC<FormationPickerProps> = ({
   positions = initialPositions,
   onChange,
 }) => {
+  const { width } = useWindowDimensions();
+  const nodeSize = Math.max(40, width * 0.12);
   const playerNodes = positions.map((pos) => (
     <DraxView
       key={pos.id}
       style={[
         styles.positionNode,
         {
+          width: nodeSize,
+          height: nodeSize,
+          borderRadius: nodeSize / 2,
           left: `${pos.x}%`,
           top: `${pos.y}%`,
-          marginLeft: -30,
-          marginTop: -30,
+          marginLeft: -nodeSize / 2,
+          marginTop: -nodeSize / 2,
         },
       ]}
       onReceiveDragDrop={() => {}}
