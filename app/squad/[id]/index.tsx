@@ -1,3 +1,5 @@
+// app/squad/[id]/index.tsx
+
 import React, { useState, useEffect } from 'react';
 import {
   ScrollView,
@@ -80,7 +82,7 @@ export default function SquadScreen() {
                 >
                   <Text style={styles.toggleText}>{n} Players</Text>
                 </Pressable>
-              ))
+              ))} {/* <-- fixed closing paren here */}
             </View>
           )}
         </View>
@@ -94,7 +96,7 @@ export default function SquadScreen() {
   );
 }
 
-const styles = StyleSheet.create({  
+const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     backgroundColor: '#08111c',
@@ -130,7 +132,8 @@ const styles = StyleSheet.create({
   },
   toggleTextActive: {
     color: '#08111c',
-  },  selectionRow: {
+  },
+  selectionRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -153,11 +156,11 @@ const styles = StyleSheet.create({
   dropdownMenu: {
     position: 'absolute',
     top: '100%',
-    right: 0, // Align with right edge of toggle
+    right: 0,
     backgroundColor: '#08111c',
     borderColor: '#fff',
     borderWidth: 1,
-    minWidth: '100%', // At least as wide as the toggle
+    minWidth: '100%',
     elevation: 1001,
   },
   dropdownOption: {
