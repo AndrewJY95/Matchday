@@ -38,6 +38,8 @@ export const initialPositions: Position[] = [
   { id: 'ST2', label: 'ST', x: 60, y: 20 }
 ];
 
+// Template player list used during development. The Squad screen may
+// slice this array to match the selected player count.
 export const initialPlayers: Player[] = [
   { id: '1', name: 'Marcus', number: '1' },
   { id: '2', name: 'James', number: '2' },
@@ -45,7 +47,11 @@ export const initialPlayers: Player[] = [
   { id: '4', name: 'David', number: '4' },
   { id: '5', name: 'Chris', number: '5' },
   { id: '6', name: 'Michael', number: '6' },
-  { id: '7', name: 'Robert', number: '7' }
+  { id: '7', name: 'Robert', number: '7' },
+  { id: '8', name: 'Daniel', number: '8' },
+  { id: '9', name: 'Luke', number: '9' },
+  { id: '10', name: 'Oliver', number: '10' },
+  { id: '11', name: 'Jack', number: '11' }
 ];
 
 export const formationPositions: Record<number, Position[]> = {

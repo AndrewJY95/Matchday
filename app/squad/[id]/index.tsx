@@ -66,17 +66,21 @@ export default function SquadScreen() {
         <View style={styles.dropdownContainer}>
           <Pressable onPress={() => setShowDropdown(!showDropdown)} style={styles.dropdownToggle}>
             <Text style={styles.toggleText}>{playerCount} Players ▾</Text>
-          </Pressable>{showDropdown && (
+          </Pressable>
+          {showDropdown && (
             <View style={[styles.dropdownMenu, { elevation: 1000 }]}>
-              {[5,6,7,8,9,10,11].map(n => (
-                <Pressable 
-                  key={n} 
-                  onPress={() => {setPlayerCount(n); setShowDropdown(false);}} 
+              {[5, 6, 7, 8, 9, 10, 11].map((n) => (
+                <Pressable
+                  key={n}
+                  onPress={() => {
+                    setPlayerCount(n);
+                    setShowDropdown(false);
+                  }}
                   style={styles.dropdownOption}
                 >
                   <Text style={styles.toggleText}>{n} Players</Text>
                 </Pressable>
-              ))}
+              ))
             </View>
           )}
         </View>
