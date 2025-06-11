@@ -1,3 +1,5 @@
+// components\FormationPicker.tsx
+
 import React from 'react';
 import {
   View,
@@ -8,7 +10,6 @@ import {
   Pressable,
   useWindowDimensions,
 } from 'react-native';
-import { DraxView } from 'react-native-drax';
 
 // Types and interfaces
 export interface Player {
@@ -32,7 +33,6 @@ interface FormationPickerProps {
   onChange?: (data: { players: Player[]; positions: Position[] }) => void;
 }
 
-// Default positions for 4-4-2 formation
 export const initialPositions: Position[] = [
   { id: 'GK', label: 'GK', x: 50, y: 90 },
   { id: 'LB', label: 'LB', x: 20, y: 70 },
@@ -44,10 +44,9 @@ export const initialPositions: Position[] = [
   { id: 'CM2', label: 'CM', x: 60, y: 45 },
   { id: 'RM', label: 'RM', x: 80, y: 45 },
   { id: 'ST1', label: 'ST', x: 40, y: 20 },
-  { id: 'ST2', label: 'ST', x: 60, y: 20 }
+  { id: 'ST2', label: 'ST', x: 60, y: 20 },
 ];
 
-// Template player list used during development
 export const initialPlayers: Player[] = [
   { id: '1', name: 'Marcus', number: '1' },
   { id: '2', name: 'James', number: '2' },
@@ -59,10 +58,9 @@ export const initialPlayers: Player[] = [
   { id: '8', name: 'Daniel', number: '8' },
   { id: '9', name: 'Luke', number: '9' },
   { id: '10', name: 'Oliver', number: '10' },
-  { id: '11', name: 'Jack', number: '11' }
+  { id: '11', name: 'Jack', number: '11' },
 ];
 
-// Formations for 5v5 to 11v11
 export const formationPositions: Record<number, Position[]> = {
   5: [
     { id: 'GK', label: 'GK', x: 50, y: 90 },
@@ -137,9 +135,7 @@ export const formationPositions: Record<number, Position[]> = {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   pitch: {
     width: '100%',
     aspectRatio: 1,
@@ -191,6 +187,20 @@ const styles = StyleSheet.create({
   },
 });
 
+// Web fallback
+const FormationPickerWebFallback: React.FC = () => {
+  return (
+    <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+      <Text style={{ color: '#fff', fontSize: 16, textAlign: 'center', padding: 20 }}>
+        Formation Picker is not supported on the web. Please test this feature in Expo Go or a simulator.
+      </Text>
+    </View>
+  );
+};
+// 
+// Mobile version using DraxView
+import { DraxView } from 'react-native-drax';
+
 const FormationPicker: React.FC<FormationPickerProps> = ({
   players = initialPlayers,
   positions = initialPositions,
@@ -198,6 +208,7 @@ const FormationPicker: React.FC<FormationPickerProps> = ({
 }) => {
   const { width } = useWindowDimensions();
   const nodeSize = Math.max(40, width * 0.12);
+
   const playerNodes = positions.map((pos) => (
     <DraxView
       key={pos.id}
@@ -241,4 +252,8 @@ const FormationPicker: React.FC<FormationPickerProps> = ({
   );
 };
 
-export default FormationPicker;
+const ExportedFormationPicker =
+  Platform.OS === 'web' ? FormationPickerWebFallback : FormationPicker;
+
+export default ExportedFormationPicker;
+
