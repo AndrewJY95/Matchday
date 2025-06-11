@@ -119,6 +119,7 @@ const FormationPicker: React.FC<FormationPickerProps> = ({
         <Image
           source={require('@/assets/images/pitch.png')}
           style={[styles.pitchImage, { resizeMode: 'contain' }]}
+          pointerEvents="none"
         />
       </View>
       <View style={styles.playerList}>
