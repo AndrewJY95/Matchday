@@ -8,6 +8,7 @@ import {
   Pressable,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { DraxProvider } from 'react-native-drax';
 import FormationPicker, {
   Player,
@@ -49,14 +50,16 @@ export default function SquadScreen() {
 
   return (
     <DraxProvider>
-      <ScrollView
-        contentContainerStyle={styles.container}
-        showsVerticalScrollIndicator={false}>
-        <View style={styles.selectionRow}>
-          <View style={styles.toggleContainer}>
-            <Pressable
-              onPress={() => setActiveTeam('Home')}
-              style={[styles.toggleButton, activeTeam === 'Home' && styles.toggleButtonActive]}
+      <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView
+          contentContainerStyle={styles.container}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.selectionRow}>
+            <View style={styles.toggleContainer}>
+              <Pressable
+                onPress={() => setActiveTeam('Home')}
+                style={[styles.toggleButton, activeTeam === 'Home' && styles.toggleButtonActive]}
             >
               <Text style={[styles.toggleText, activeTeam === 'Home' && styles.toggleTextActive]}>Home</Text>
             </Pressable>
@@ -94,7 +97,8 @@ export default function SquadScreen() {
           positions={currentData.positions}
           onChange={handleChange}
         />
-      </ScrollView>
+        </ScrollView>
+      </SafeAreaView>
     </DraxProvider>
   );
 }
@@ -102,6 +106,7 @@ export default function SquadScreen() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
+    flex: 1,
     backgroundColor: '#08111c',
     padding: 16,
     position: 'relative',
