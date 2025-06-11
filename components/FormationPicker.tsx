@@ -39,8 +39,7 @@ export const initialPositions: Position[] = [
   { id: 'ST2', label: 'ST', x: 60, y: 20 }
 ];
 
-// Template player list used during development. The Squad screen may
-// slice this array to match the selected player count.
+// Template player list used during development
 export const initialPlayers: Player[] = [
   { id: '1', name: 'Marcus', number: '1' },
   { id: '2', name: 'James', number: '2' },
@@ -55,11 +54,8 @@ export const initialPlayers: Player[] = [
   { id: '11', name: 'Jack', number: '11' }
 ];
 
-// Formations for 5v5 up to 11v11. The x/y coordinates are percentages
-// relative to the pitch image. These provide a simple layout for each
-// formation which will be shown when the player count changes.
+// Formations for 5v5 to 11v11
 export const formationPositions: Record<number, Position[]> = {
-  // 5-a-side: 1-2-1-1
   5: [
     { id: 'GK', label: 'GK', x: 50, y: 90 },
     { id: 'CB', label: 'CB', x: 50, y: 70 },
@@ -67,8 +63,6 @@ export const formationPositions: Record<number, Position[]> = {
     { id: 'RM', label: 'RM', x: 70, y: 50 },
     { id: 'CF', label: 'CF', x: 50, y: 25 },
   ],
-
-  // 6-a-side: 2-2-1
   6: [
     { id: 'GK', label: 'GK', x: 50, y: 90 },
     { id: 'CB1', label: 'CB', x: 40, y: 70 },
@@ -77,8 +71,6 @@ export const formationPositions: Record<number, Position[]> = {
     { id: 'RM', label: 'RM', x: 70, y: 50 },
     { id: 'CF', label: 'CF', x: 50, y: 25 },
   ],
-
-  // 7-a-side: 2-3-1
   7: [
     { id: 'GK', label: 'GK', x: 50, y: 90 },
     { id: 'CB1', label: 'CB', x: 40, y: 70 },
@@ -88,8 +80,6 @@ export const formationPositions: Record<number, Position[]> = {
     { id: 'RM', label: 'RM', x: 80, y: 55 },
     { id: 'CF', label: 'CF', x: 50, y: 25 },
   ],
-
-  // 8-a-side: 3-3-1
   8: [
     { id: 'GK', label: 'GK', x: 50, y: 90 },
     { id: 'LB', label: 'LB', x: 20, y: 70 },
@@ -100,8 +90,6 @@ export const formationPositions: Record<number, Position[]> = {
     { id: 'RM', label: 'RM', x: 70, y: 50 },
     { id: 'CF', label: 'CF', x: 50, y: 25 },
   ],
-
-  // 9-a-side: 3-2-3
   9: [
     { id: 'GK', label: 'GK', x: 50, y: 90 },
     { id: 'LB', label: 'LB', x: 20, y: 70 },
@@ -113,8 +101,6 @@ export const formationPositions: Record<number, Position[]> = {
     { id: 'CF', label: 'CF', x: 50, y: 20 },
     { id: 'RW', label: 'RW', x: 75, y: 25 },
   ],
-
-  // 10-a-side: 4-3-2
   10: [
     { id: 'GK', label: 'GK', x: 50, y: 90 },
     { id: 'LB', label: 'LB', x: 15, y: 70 },
@@ -127,8 +113,6 @@ export const formationPositions: Record<number, Position[]> = {
     { id: 'CF1', label: 'CF', x: 40, y: 25 },
     { id: 'CF2', label: 'CF', x: 60, y: 25 },
   ],
-
-  // 11-a-side: 4-1-2-1-2
   11: [
     { id: 'GK', label: 'GK', x: 50, y: 90 },
     { id: 'LB', label: 'LB', x: 20, y: 70 },
@@ -154,11 +138,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     position: 'relative',
     zIndex: 1,
-  },
-  pitchImage: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
   },
   positionNode: {
     position: 'absolute',
@@ -204,39 +183,38 @@ const styles = StyleSheet.create({
   },
 });
 
-const FormationPicker: React.FC<FormationPickerProps> = ({ 
+const FormationPicker: React.FC<FormationPickerProps> = ({
   players = initialPlayers,
   positions = initialPositions,
-  onChange 
+  onChange,
 }) => {
-  const playerNodes = positions.map((pos) => {
-    return (
-      <DraxView
-        key={pos.id}
-        style={[
-          styles.positionNode,
-          {
-            left: `${pos.x}%`,
-            top: `${pos.y}%`,
-            marginLeft: -30,
-            marginTop: -30,
-          },
-        ]}
-        onReceiveDragDrop={() => {}}
-      >
-        <Text style={styles.positionText}>{pos.label}</Text>
-      </DraxView>
-    );
-  });
+  const playerNodes = positions.map((pos) => (
+    <DraxView
+      key={pos.id}
+      style={[
+        styles.positionNode,
+        {
+          left: `${pos.x}%`,
+          top: `${pos.y}%`,
+          marginLeft: -30,
+          marginTop: -30,
+        },
+      ]}
+      onReceiveDragDrop={() => {}}
+    >
+      <Text style={styles.positionText}>{pos.label}</Text>
+    </DraxView>
+  ));
 
   return (
     <View style={styles.container}>
       <View style={styles.pitch}>
-        <Image
-          source={require('@/assets/images/pitch.png')}
-          style={[styles.pitchImage, { resizeMode: 'contain' }]}
-          pointerEvents="none"
-        />
+        <View style={StyleSheet.absoluteFill} pointerEvents="none">
+          <Image
+            source={require('@/assets/images/pitch.png')}
+            style={[StyleSheet.absoluteFill, { resizeMode: 'contain' }]}
+          />
+        </View>
         {playerNodes}
       </View>
       <View style={styles.playerList}>
@@ -251,4 +229,3 @@ const FormationPicker: React.FC<FormationPickerProps> = ({
 };
 
 export default FormationPicker;
-

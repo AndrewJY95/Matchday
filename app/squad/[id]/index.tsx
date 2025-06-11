@@ -8,6 +8,7 @@ import {
   Pressable,
   View,
 } from 'react-native';
+import { DraxProvider } from 'react-native-drax';
 import FormationPicker, {
   Player,
   Position,
@@ -47,52 +48,54 @@ export default function SquadScreen() {
   const currentData = activeTeam === 'Home' ? homeData : awayData;
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      showsVerticalScrollIndicator={false}>
-      <View style={styles.selectionRow}>
-        <View style={styles.toggleContainer}>
-          <Pressable
-            onPress={() => setActiveTeam('Home')}
-            style={[styles.toggleButton, activeTeam === 'Home' && styles.toggleButtonActive]}
-          >
-            <Text style={[styles.toggleText, activeTeam === 'Home' && styles.toggleTextActive]}>Home</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setActiveTeam('Away')}
-            style={[styles.toggleButton, activeTeam === 'Away' && styles.toggleButtonActive]}
-          >
-            <Text style={[styles.toggleText, activeTeam === 'Away' && styles.toggleTextActive]}>Away</Text>
-          </Pressable>
+    <DraxProvider>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}>
+        <View style={styles.selectionRow}>
+          <View style={styles.toggleContainer}>
+            <Pressable
+              onPress={() => setActiveTeam('Home')}
+              style={[styles.toggleButton, activeTeam === 'Home' && styles.toggleButtonActive]}
+            >
+              <Text style={[styles.toggleText, activeTeam === 'Home' && styles.toggleTextActive]}>Home</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setActiveTeam('Away')}
+              style={[styles.toggleButton, activeTeam === 'Away' && styles.toggleButtonActive]}
+            >
+              <Text style={[styles.toggleText, activeTeam === 'Away' && styles.toggleTextActive]}>Away</Text>
+            </Pressable>
+          </View>
+          <View style={styles.dropdownContainer}>
+            <Pressable onPress={() => setShowDropdown(!showDropdown)} style={styles.dropdownToggle}>
+              <Text style={styles.toggleText}>{playerCount} Players ▾</Text>
+            </Pressable>
+            {showDropdown && (
+              <View style={[styles.dropdownMenu, { elevation: 1000 }]}>
+                {[5, 6, 7, 8, 9, 10, 11].map((n) => (
+                  <Pressable
+                    key={n}
+                    onPress={() => {
+                      setPlayerCount(n);
+                      setShowDropdown(false);
+                    }}
+                    style={styles.dropdownOption}
+                  >
+                    <Text style={styles.toggleText}>{n} Players</Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
+          </View>
         </View>
-        <View style={styles.dropdownContainer}>
-          <Pressable onPress={() => setShowDropdown(!showDropdown)} style={styles.dropdownToggle}>
-            <Text style={styles.toggleText}>{playerCount} Players ▾</Text>
-          </Pressable>
-          {showDropdown && (
-            <View style={[styles.dropdownMenu, { elevation: 1000 }]}>
-              {[5, 6, 7, 8, 9, 10, 11].map((n) => (
-                <Pressable
-                  key={n}
-                  onPress={() => {
-                    setPlayerCount(n);
-                    setShowDropdown(false);
-                  }}
-                  style={styles.dropdownOption}
-                >
-                  <Text style={styles.toggleText}>{n} Players</Text>
-                </Pressable>
-              ))}
-            </View>
-          )}
-        </View>
-      </View>
-      <FormationPicker
-        players={currentData.players}
-        positions={currentData.positions}
-        onChange={handleChange}
-      />
-    </ScrollView>
+        <FormationPicker
+          players={currentData.players}
+          positions={currentData.positions}
+          onChange={handleChange}
+        />
+      </ScrollView>
+    </DraxProvider>
   );
 }
 
