@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, usePathname, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -34,7 +34,7 @@ const Header = () => {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <SafeAreaView edges={['top']} style={styles.container}>
       <View style={styles.header}>
         {/* Left side - Back button and Logo */}
         <View style={styles.leftSection}>
@@ -61,17 +61,16 @@ const Header = () => {
           {/* Space for notifications, settings, etc. */}
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#08101d',
-    paddingTop: 0,
   },
   header: {
-    height: 35,
+    height: 50,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
@@ -81,7 +80,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    marginTop: -12, // Align with logo
   },
   centerSection: {
     flex: 2,             // Changed from flex: 1 to flex: 2
@@ -96,14 +94,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 4,
-    marginTop: -8, // Adjust to match logo position
   },
   backButton: {
     padding: 8,
     height: 35,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: -12, // Match logo position
     marginLeft: -10,
   },
   logoContainer: {
@@ -115,7 +111,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     marginLeft: -10,
-    marginTop: -15,
   },
 });
 
