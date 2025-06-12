@@ -82,6 +82,11 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
   },
+  pitchImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
+  },
   positionNode: {
     position: 'absolute',
     backgroundColor: '#4CAF50',
@@ -124,7 +129,7 @@ const FormationPicker: React.FC<FormationPickerProps> = ({ players, positions })
       <View style={styles.pitch}>
         <Image
           source={require('@/assets/images/pitch.png')}
-          style={StyleSheet.absoluteFillObject}
+          style={styles.pitchImage}
           resizeMode="contain"
         />
         {positions.map((pos) => (
