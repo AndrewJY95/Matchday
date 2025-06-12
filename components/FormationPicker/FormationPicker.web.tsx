@@ -1,8 +1,16 @@
-// components\FormationPicker.web.tsx
+// components\FormationPicker\FormationPicker.web.tsx
+
+console.log('✅ FormationPicker.web.tsx loaded');
+
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
+export const initialPlayers = [];
+export const initialPositions = [];
+export const formationPositions = {};
+
 const FormationPickerWebFallback: React.FC = () => {
+  console.warn('⚠️ FormationPicker fallback props received');
   return (
     <View style={styles.container}>
       <Text style={styles.text}>

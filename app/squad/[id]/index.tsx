@@ -1,4 +1,4 @@
-// ✅ app/squad/[id]/index.tsx
+// app/squad/[id]/index.tsx
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -18,7 +18,6 @@ import FormationPicker, {
   Position,
 } from '@/components/FormationPicker';
 
-
 export default function SquadScreen() {
   const params = useLocalSearchParams();
   const squadId = Array.isArray(params.id) ? params.id[0] : params.id;
@@ -36,11 +35,22 @@ export default function SquadScreen() {
   };
 
   useEffect(() => {
-    const formation = formationPositions[playerCount] || initialPositions;
+  if (!formationPositions || typeof formationPositions !== 'object') {
+    console.warn('formationPositions is missing or invalid. Using fallback.');
     const players = initialPlayers.slice(0, playerCount);
-    setHomeData({ players, positions: formation });
-    setAwayData({ players, positions: formation });
+    setHomeData({ players, positions: initialPositions });
+    setAwayData({ players, positions: initialPositions });
+    return;
+  }
+
+  const formation = Array.isArray(formationPositions[playerCount])
+  ? formationPositions[playerCount]
+  : initialPositions;
+  const players = initialPlayers.slice(0, playerCount);
+  setHomeData({ players, positions: formation });
+  setAwayData({ players, positions: formation });
   }, [playerCount]);
+
 
   const currentData = activeTeam === 'Home' ? homeData : awayData;
 
@@ -89,11 +99,15 @@ export default function SquadScreen() {
           </View>
         </View>
 
-        <FormationPicker
-          players={currentData.players}
-          positions={currentData.positions}
-          onChange={handleChange}
-        />
+        {currentData.players && currentData.positions ? (
+          <FormationPicker
+            players={currentData.players}
+            positions={currentData.positions}
+            onChange={handleChange}
+          />
+        ) : (
+          <Text style={{ color: '#fff', textAlign: 'center' }}>Loading formation...</Text>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -161,4 +175,3 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
 });
-
