@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { View, TouchableOpacity, StyleSheet, StatusBar, Image } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter, usePathname, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -7,6 +8,7 @@ const Header = () => {
   const router = useRouter();
   const pathname = usePathname();
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const [currentPath, setCurrentPath] = useState(pathname);
 
   useEffect(() => {
@@ -32,7 +34,7 @@ const Header = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
         {/* Left side - Back button and Logo */}
         <View style={styles.leftSection}>
@@ -66,7 +68,7 @@ const Header = () => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#08101d',
-    paddingTop: StatusBar.currentHeight || 28,
+    paddingTop: 0,
   },
   header: {
     height: 35,
