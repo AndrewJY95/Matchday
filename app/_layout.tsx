@@ -4,6 +4,7 @@ import 'react-native-gesture-handler';
 import { Platform } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { DraxProvider } from 'react-native-drax';
 import Header from '@/components/Header';
@@ -17,20 +18,22 @@ const SafeDraxProvider = Platform.OS === 'web'
 export default function RootLayout() {
   const app = (
     <SafeDraxProvider>
-      <UserProfileProvider>
-        <StatusBar style="light" backgroundColor="#1a1a2e" />
-        <UserProfileModal />
-        <Stack
-          screenOptions={{
-            header: () => <Header />,
-            contentStyle: {
-              backgroundColor: '#0f0f23',
-            },
-          }}
-        >
-          <Stack.Screen name="(tabs)" options={{ headerShown: true }} />
-        </Stack>
-      </UserProfileProvider>
+      <SafeAreaProvider>
+        <UserProfileProvider>
+          <StatusBar style="light" backgroundColor="#1a1a2e" />
+          <UserProfileModal />
+          <Stack
+            screenOptions={{
+              header: () => <Header />,
+              contentStyle: {
+                backgroundColor: '#0f0f23',
+              },
+            }}
+          >
+            <Stack.Screen name="(tabs)" options={{ headerShown: true }} />
+          </Stack>
+        </UserProfileProvider>
+      </SafeAreaProvider>
     </SafeDraxProvider>
   );
 
