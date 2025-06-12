@@ -7,7 +7,15 @@ import { View, Text, StyleSheet } from 'react-native';
 
 export const initialPlayers = [];
 export const initialPositions = [];
-export const formationPositions = {};
+export const formationPositions = {
+  5: [],
+  6: [],
+  7: [],
+  8: [],
+  9: [],
+  10: [],
+  11: [],
+};
 
 const FormationPickerWebFallback: React.FC = () => {
   console.warn('⚠️ FormationPicker fallback props received');
