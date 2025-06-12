@@ -1,4 +1,6 @@
-// components/FormationPicker.tsx
+// components\FormationPicker\FormationPicker.tsx
+console.log("🚫 FormationPicker.tsx loaded");
+
 
 import React from 'react';
 import {
