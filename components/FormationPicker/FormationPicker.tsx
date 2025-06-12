@@ -1,5 +1,4 @@
 // components\FormationPicker\FormationPicker.tsx
-console.log("🚫 FormationPicker.tsx loaded");
 
 
 import React from 'react';
@@ -10,9 +9,7 @@ import {
   Image,
   Pressable,
   useWindowDimensions,
-  Platform,
 } from 'react-native';
-import { DraxView } from 'react-native-drax';
 
 export interface Player {
   id: string;
@@ -209,7 +206,7 @@ const FormationPicker: React.FC<FormationPickerProps> = ({ players, positions })
           resizeMode="contain"
         />
         {positions.map((pos) => (
-          <DraxView
+          <View
             key={pos.id}
             style={[
               styles.positionNode,
@@ -223,10 +220,9 @@ const FormationPicker: React.FC<FormationPickerProps> = ({ players, positions })
                 marginTop: -nodeSize / 2,
               },
             ]}
-            onReceiveDragDrop={() => {}}
           >
             <Text style={styles.positionText}>{pos.label}</Text>
-          </DraxView>
+          </View>
         ))}
       </View>
       <View style={styles.playerList}>

@@ -6,20 +6,15 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { DraxProvider } from 'react-native-drax';
 import Header from '@/components/Header';
 import UserProfileModal from '@/components/UserProfileModal';
 import { UserProfileProvider } from '@/components/UserProfileContext';
 
-const SafeDraxProvider = Platform.OS === 'web' 
-  ? ({ children }: { children: React.ReactNode }) => <>{children}</>
-  : DraxProvider;
 
 export default function RootLayout() {
   const app = (
-    <SafeDraxProvider>
-      <SafeAreaProvider>
-        <UserProfileProvider>
+    <SafeAreaProvider>
+      <UserProfileProvider>
           <StatusBar style="light" backgroundColor="#1a1a2e" />
           <UserProfileModal />
           <Stack
@@ -32,9 +27,8 @@ export default function RootLayout() {
           >
             <Stack.Screen name="(tabs)" options={{ headerShown: true }} />
           </Stack>
-        </UserProfileProvider>
-      </SafeAreaProvider>
-    </SafeDraxProvider>
+      </UserProfileProvider>
+    </SafeAreaProvider>
   );
 
   return Platform.OS === 'web' ? app : (
