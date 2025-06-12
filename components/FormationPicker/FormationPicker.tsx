@@ -1,5 +1,4 @@
 // components\FormationPicker\FormationPicker.tsx
-console.log("🚫 FormationPicker.tsx loaded");
 
 
 import React from 'react';
@@ -10,9 +9,7 @@ import {
   Image,
   Pressable,
   useWindowDimensions,
-  Platform,
 } from 'react-native';
-import { DraxView } from 'react-native-drax';
 
 export interface Player {
   id: string;
@@ -64,13 +61,89 @@ export const initialPositions: Position[] = [
 ];
 
 export const formationPositions: Record<number, Position[]> = {
-  5: [ /* ... */ ],
-  6: [ /* ... */ ],
-  7: [ /* ... */ ],
-  8: [ /* ... */ ],
-  9: [ /* ... */ ],
-  10: [ /* ... */ ],
-  11: [ /* ... */ ],
+  // 5-a-side: 1-2-1-1
+  5: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'CB', label: 'CB', x: 50, y: 70 },
+    { id: 'LM', label: 'LM', x: 30, y: 50 },
+    { id: 'RM', label: 'RM', x: 70, y: 50 },
+    { id: 'CF', label: 'CF', x: 50, y: 25 },
+  ],
+
+  // 6-a-side: 2-2-1
+  6: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'CB1', label: 'CB', x: 40, y: 70 },
+    { id: 'CB2', label: 'CB', x: 60, y: 70 },
+    { id: 'LM', label: 'LM', x: 30, y: 50 },
+    { id: 'RM', label: 'RM', x: 70, y: 50 },
+    { id: 'CF', label: 'CF', x: 50, y: 25 },
+  ],
+
+  // 7-a-side: 2-3-1
+  7: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'CB1', label: 'CB', x: 40, y: 70 },
+    { id: 'CB2', label: 'CB', x: 60, y: 70 },
+    { id: 'LM', label: 'LM', x: 20, y: 55 },
+    { id: 'CM', label: 'CM', x: 50, y: 50 },
+    { id: 'RM', label: 'RM', x: 80, y: 55 },
+    { id: 'CF', label: 'CF', x: 50, y: 25 },
+  ],
+
+  // 8-a-side: 3-3-1
+  8: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'LB', label: 'LB', x: 20, y: 70 },
+    { id: 'CB', label: 'CB', x: 50, y: 70 },
+    { id: 'RB', label: 'RB', x: 80, y: 70 },
+    { id: 'LM', label: 'LM', x: 30, y: 50 },
+    { id: 'CM', label: 'CM', x: 50, y: 50 },
+    { id: 'RM', label: 'RM', x: 70, y: 50 },
+    { id: 'CF', label: 'CF', x: 50, y: 25 },
+  ],
+
+  // 9-a-side: 3-2-3
+  9: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'LB', label: 'LB', x: 20, y: 70 },
+    { id: 'CB', label: 'CB', x: 50, y: 70 },
+    { id: 'RB', label: 'RB', x: 80, y: 70 },
+    { id: 'CM', label: 'CM', x: 40, y: 55 },
+    { id: 'DM', label: 'DM', x: 60, y: 60 },
+    { id: 'LW', label: 'LW', x: 25, y: 25 },
+    { id: 'CF', label: 'CF', x: 50, y: 20 },
+    { id: 'RW', label: 'RW', x: 75, y: 25 },
+  ],
+
+  // 10-a-side: 4-3-2
+  10: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'LB', label: 'LB', x: 15, y: 70 },
+    { id: 'CB1', label: 'CB', x: 35, y: 70 },
+    { id: 'CB2', label: 'CB', x: 65, y: 70 },
+    { id: 'RB', label: 'RB', x: 85, y: 70 },
+    { id: 'LM', label: 'LM', x: 30, y: 50 },
+    { id: 'CM', label: 'CM', x: 50, y: 50 },
+    { id: 'RM', label: 'RM', x: 70, y: 50 },
+    { id: 'CF1', label: 'CF', x: 40, y: 25 },
+    { id: 'CF2', label: 'CF', x: 60, y: 25 },
+  ],
+
+  // 11-a-side: 4-1-2-1-2
+  11: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'LB', label: 'LB', x: 20, y: 70 },
+    { id: 'CB1', label: 'CB', x: 40, y: 70 },
+    { id: 'CB2', label: 'CB', x: 60, y: 70 },
+    { id: 'RB', label: 'RB', x: 80, y: 70 },
+    { id: 'DM', label: 'DM', x: 50, y: 60 },
+    { id: 'LM', label: 'LM', x: 30, y: 45 },
+    { id: 'RM', label: 'RM', x: 70, y: 45 },
+    { id: 'AM', label: 'AM', x: 50, y: 35 },
+    { id: 'CF1', label: 'CF', x: 40, y: 20 },
+    { id: 'CF2', label: 'CF', x: 60, y: 20 },
+  ],
 };
 
 const styles = StyleSheet.create({
@@ -133,7 +206,7 @@ const FormationPicker: React.FC<FormationPickerProps> = ({ players, positions })
           resizeMode="contain"
         />
         {positions.map((pos) => (
-          <DraxView
+          <View
             key={pos.id}
             style={[
               styles.positionNode,
@@ -147,10 +220,9 @@ const FormationPicker: React.FC<FormationPickerProps> = ({ players, positions })
                 marginTop: -nodeSize / 2,
               },
             ]}
-            onReceiveDragDrop={() => {}}
           >
             <Text style={styles.positionText}>{pos.label}</Text>
-          </DraxView>
+          </View>
         ))}
       </View>
       <View style={styles.playerList}>
