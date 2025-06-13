@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useState } from 'react';
+
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { DraxView } from 'react-native-drax';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,22 +12,19 @@ interface PositionSlotProps {
   onRemove: () => void;
 }
 
-const PositionSlot: React.FC<PositionSlotProps> = ({
-  position,
-  nodeSize,
-  onReceive,
-  onRemove,
-}) => {
-  const [hover, setHover] = useState(false);
+const PositionSlot = forwardRef<any, PositionSlotProps>(
+  ({ position, nodeSize, onReceive, onRemove }, ref) => {
+    const [hover, setHover] = useState(false);
 
-  return (
-    <DraxView
-      receptive
-      style={[
-        styles.node,
-        {
-          width: nodeSize,
-          height: nodeSize,
+    return (
+      <DraxView
+        ref={ref}
+        receptive
+        style={[
+          styles.node,
+          {
+            width: nodeSize,
+            height: nodeSize,
           borderRadius: nodeSize / 2,
           left: `${position.x}%`,
           top: `${position.y}%`,
@@ -35,25 +33,26 @@ const PositionSlot: React.FC<PositionSlotProps> = ({
         },
         hover && styles.nodeHover,
       ]}
-      onReceiveDragEnter={() => setHover(true)}
-      onReceiveDragExit={() => setHover(false)}
-      onReceiveDragDrop={({ dragged }) => {
-        const payload = dragged?.payload as string;
-        if (payload) onReceive(payload);
-        setHover(false);
-      }}
-    >
-      <Text style={styles.label} numberOfLines={1}>
-        {position.player ? position.player.name : position.label}
-      </Text>
-      {position.player && (
-        <Pressable onPress={onRemove} style={styles.removeButton}>
-          <Ionicons name="close" size={12} color="#fff" />
-        </Pressable>
-      )}
-    </DraxView>
-  );
-};
+        onReceiveDragEnter={() => setHover(true)}
+        onReceiveDragExit={() => setHover(false)}
+        onReceiveDragDrop={({ dragged }) => {
+          const payload = dragged?.payload as string;
+          if (payload) onReceive(payload);
+          setHover(false);
+        }}
+      >
+        <Text style={styles.label} numberOfLines={1}>
+          {position.player ? position.player.name : position.label}
+        </Text>
+        {position.player && (
+          <Pressable onPress={onRemove} style={styles.removeButton}>
+            <Ionicons name="close" size={12} color="#fff" />
+          </Pressable>
+        )}
+      </DraxView>
+    );
+  }
+);
 
 const styles = StyleSheet.create({
   node: {
