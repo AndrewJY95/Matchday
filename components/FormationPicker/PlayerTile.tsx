@@ -1,4 +1,5 @@
 import React, { forwardRef } from 'react';
+
 import { StyleSheet, Text } from 'react-native';
 import { DraxView } from 'react-native-drax';
 import type { Player } from './FormationPicker';
