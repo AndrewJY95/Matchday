@@ -1,7 +1,7 @@
 // components\FormationPicker\FormationPicker.tsx
 
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,10 @@ import {
   Pressable,
   useWindowDimensions,
 } from 'react-native';
+import { DraxProvider, DraxScrollView } from 'react-native-drax';
+import PlayerTile from './PlayerTile';
+import PositionSlot from './PositionSlot';
+import { Ionicons } from '@expo/vector-icons';
 
 export interface Player {
   id: string;
@@ -160,18 +164,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  positionNode: {
-    position: 'absolute',
-    backgroundColor: '#4CAF50',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  positionText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
   playerList: {
     padding: 10,
     flexDirection: 'row',
@@ -179,60 +171,104 @@ const styles = StyleSheet.create({
     gap: 10,
     justifyContent: 'center',
   },
-  playerItem: {
-    backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 8,
-    minWidth: '45%',
+  resetButton: {
+    flexDirection: 'row',
+    alignSelf: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    marginTop: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#fff',
+    borderRadius: 4,
   },
-  playerName: {
-    fontSize: 16,
+  resetText: {
+    color: '#fff',
+    marginLeft: 4,
     fontWeight: 'bold',
   },
 });
 
-const FormationPicker: React.FC<FormationPickerProps> = ({ players, positions }) => {
+const FormationPicker: React.FC<FormationPickerProps> = ({ players, positions, onChange }) => {
   const { width } = useWindowDimensions();
   const nodeSize = Math.max(40, width * 0.12);
 
+  const [availablePlayers, setAvailablePlayers] = useState<Player[]>(players);
+  const [slots, setSlots] = useState<Position[]>(positions);
+
+  useEffect(() => {
+    setAvailablePlayers(players);
+    const cleared = positions.map(p => ({ ...p, player: undefined }));
+    setSlots(cleared);
+  }, [players, positions]);
+
+  const emitChange = (newPlayers: Player[], newSlots: Position[]) => {
+    onChange?.({ players: newPlayers, positions: newSlots });
+  };
+
+  const assignPlayer = (playerId: string, slotId: string) => {
+    const player = availablePlayers.find(p => p.id === playerId);
+    if (!player) return;
+    const newSlots = slots.map(s =>
+      s.id === slotId ? { ...s, player } : s
+    );
+    const newPlayers = availablePlayers.filter(p => p.id !== playerId);
+    setSlots(newSlots);
+    setAvailablePlayers(newPlayers);
+    emitChange(newPlayers, newSlots);
+  };
+
+  const removePlayer = (slotId: string) => {
+    const slot = slots.find(s => s.id === slotId);
+    if (!slot?.player) return;
+    const newPlayers = [...availablePlayers, slot.player];
+    const newSlots = slots.map(s =>
+      s.id === slotId ? { ...s, player: undefined } : s
+    );
+    setSlots(newSlots);
+    setAvailablePlayers(newPlayers);
+    emitChange(newPlayers, newSlots);
+  };
+
+  const reset = () => {
+    const cleared = slots.map(p => ({ ...p, player: undefined }));
+    setSlots(cleared);
+    setAvailablePlayers(players);
+    emitChange(players, cleared);
+  };
+
   return (
-    <View style={styles.container}>
-      <View style={styles.pitch}>
-        <Image
-          source={require('@/assets/images/pitch.png')}
-          style={styles.pitchImage}
-          resizeMode="contain"
-        />
-        {positions.map((pos) => (
-          <View
-            key={pos.id}
-            style={[
-              styles.positionNode,
-              {
-                width: nodeSize,
-                height: nodeSize,
-                borderRadius: nodeSize / 2,
-                left: `${pos.x}%`,
-                top: `${pos.y}%`,
-                marginLeft: -nodeSize / 2,
-                marginTop: -nodeSize / 2,
-              },
-            ]}
-          >
-            <Text style={styles.positionText}>{pos.label}</Text>
-          </View>
-        ))}
+    <DraxProvider>
+      <View style={styles.container}>
+        <View style={styles.pitch}>
+          <Image
+            source={require('@/assets/images/pitch.png')}
+            style={styles.pitchImage}
+            resizeMode="contain"
+          />
+          {slots.map((pos) => (
+            <PositionSlot
+              key={pos.id}
+              position={pos}
+              nodeSize={nodeSize}
+              onReceive={(playerId) => assignPlayer(playerId, pos.id)}
+              onRemove={() => removePlayer(pos.id)}
+            />
+          ))}
+        </View>
+
+        <DraxScrollView contentContainerStyle={styles.playerList} horizontal={false}>
+          {availablePlayers.map((player) => (
+            <PlayerTile key={player.id} player={player} />
+          ))}
+        </DraxScrollView>
+
+        <Pressable onPress={reset} style={styles.resetButton}>
+          <Ionicons name="refresh" size={16} color="#fff" />
+          <Text style={styles.resetText}>Reset</Text>
+        </Pressable>
       </View>
-      <View style={styles.playerList}>
-        {players.slice(0, positions.length).map((player) => (
-          <Pressable key={player.id} style={styles.playerItem}>
-            <Text style={styles.playerName}>{player.name}</Text>
-          </Pressable>
-        ))}
-      </View>
-    </View>
+    </DraxProvider>
   );
 };
 
