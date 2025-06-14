@@ -1,6 +1,5 @@
 // app/squad/[id]/index.tsx
-
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   ScrollView,
   View,
@@ -8,51 +7,33 @@ import {
   StyleSheet,
   Pressable,
 } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import FormationPicker, {
-  initialPlayers,
-  initialPositions,
-  formationPositions,
-  Player,
-  Position,
-} from '@/components/FormationPicker';
+import FormationPicker from '@/components/FormationPicker';
+import type { Player } from '@/components/FormationPicker/types';
+
+const allPlayers: Player[] = [
+  { id: '1', name: 'Marcus' },
+  { id: '2', name: 'James' },
+  { id: '3', name: 'Alex' },
+  { id: '4', name: 'Chris' },
+  { id: '5', name: 'Jordan' },
+  { id: '6', name: 'Sam' },
+  { id: '7', name: 'Michael' },
+  { id: '8', name: 'Daniel' },
+  { id: '9', name: 'Luke' },
+  { id: '10', name: 'Oliver' },
+  { id: '11', name: 'Jack' },
+];
 
 export default function SquadScreen() {
   const params = useLocalSearchParams();
   const squadId = Array.isArray(params.id) ? params.id[0] : params.id;
-  const router = useRouter();
 
   const [playerCount, setPlayerCount] = useState(11);
-  const [activeTeam, setActiveTeam] = useState<'Home' | 'Away'>('Home');
-  const [homeData, setHomeData] = useState({ players: initialPlayers, positions: initialPositions });
-  const [awayData, setAwayData] = useState({ players: initialPlayers, positions: initialPositions });
   const [showDropdown, setShowDropdown] = useState(false);
 
-  const handleChange = (data: { players: Player[]; positions: Position[] }) => {
-    if (activeTeam === 'Home') setHomeData(data);
-    else setAwayData(data);
-  };
-
-  useEffect(() => {
-  if (!formationPositions || typeof formationPositions !== 'object') {
-    console.warn('formationPositions is missing or invalid. Using fallback.');
-    const players = initialPlayers.slice(0, playerCount);
-    setHomeData({ players, positions: initialPositions });
-    setAwayData({ players, positions: initialPositions });
-    return;
-  }
-
-  const formation = Array.isArray(formationPositions[playerCount])
-  ? formationPositions[playerCount]
-  : initialPositions;
-  const players = initialPlayers.slice(0, playerCount);
-  setHomeData({ players, positions: formation });
-  setAwayData({ players, positions: formation });
-  }, [playerCount]);
-
-
-  const currentData = activeTeam === 'Home' ? homeData : awayData;
+  const selectedPlayers = allPlayers.slice(0, playerCount);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -61,23 +42,11 @@ export default function SquadScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.selectionRow}>
-          <View style={styles.toggleContainer}>
-            <Pressable
-              onPress={() => setActiveTeam('Home')}
-              style={[styles.toggleButton, activeTeam === 'Home' && styles.toggleButtonActive]}
-            >
-              <Text style={[styles.toggleText, activeTeam === 'Home' && styles.toggleTextActive]}>Home</Text>
-            </Pressable>
-            <Pressable
-              onPress={() => setActiveTeam('Away')}
-              style={[styles.toggleButton, activeTeam === 'Away' && styles.toggleButtonActive]}
-            >
-              <Text style={[styles.toggleText, activeTeam === 'Away' && styles.toggleTextActive]}>Away</Text>
-            </Pressable>
-          </View>
-
           <View style={styles.dropdownContainer}>
-            <Pressable onPress={() => setShowDropdown(!showDropdown)} style={styles.dropdownToggle}>
+            <Pressable
+              onPress={() => setShowDropdown(!showDropdown)}
+              style={styles.dropdownToggle}
+            >
               <Text style={styles.toggleText}>{playerCount} Players ▾</Text>
             </Pressable>
             {showDropdown && (
@@ -99,15 +68,7 @@ export default function SquadScreen() {
           </View>
         </View>
 
-        {currentData.players && currentData.positions ? (
-          <FormationPicker
-            players={currentData.players}
-            positions={currentData.positions}
-            onChange={handleChange}
-          />
-        ) : (
-          <Text style={{ color: '#fff', textAlign: 'center' }}>Loading formation...</Text>
-        )}
+        <FormationPicker players={selectedPlayers} positions={[]} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -122,34 +83,11 @@ const styles = StyleSheet.create({
   selectionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
     marginBottom: 16,
     zIndex: 999,
   },
-  toggleContainer: {
-    flexDirection: 'row',
-    borderRadius: 4,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#fff',
-  },
-  toggleButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 20,
-    backgroundColor: 'transparent',
-  },
-  toggleButtonActive: {
-    backgroundColor: '#fff',
-  },
-  toggleText: {
-    color: '#fff',
-    fontWeight: 'bold',
-  },
-  toggleTextActive: {
-    color: '#08111c',
-  },
   dropdownContainer: {
-    marginLeft: 'auto',
     zIndex: 1000,
   },
   dropdownToggle: {
@@ -173,5 +111,9 @@ const styles = StyleSheet.create({
   dropdownOption: {
     paddingHorizontal: 12,
     paddingVertical: 6,
+  },
+  toggleText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });

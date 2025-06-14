@@ -1,86 +1,37 @@
-import React, { forwardRef, useState } from 'react';
-
-import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { DraxView } from 'react-native-drax';
-import { Ionicons } from '@expo/vector-icons';
-import type { Position } from './FormationPicker';
+// components/FormationPicker/PositionSlot.tsx
+import React from 'react';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import type { Player } from './types';
 
 interface PositionSlotProps {
-  position: Position;
-  nodeSize: number;
-  onReceive: (playerId: string) => void;
+  label: string;
+  assignedPlayer: Player | null;
   onRemove: () => void;
 }
 
-const PositionSlot = forwardRef<any, PositionSlotProps>(
-  ({ position, nodeSize, onReceive, onRemove }, ref) => {
-    const [hover, setHover] = useState(false);
+const PositionSlot: React.FC<PositionSlotProps> = ({ label, assignedPlayer, onRemove }) => {
+  return (
+    <Pressable style={styles.slot} onPress={onRemove}>
+      <Text style={styles.text}>
+        {assignedPlayer ? assignedPlayer.name : label}
+      </Text>
+    </Pressable>
+  );
+};
 
-    return (
-      <DraxView
-        ref={ref}
-        receptive
-        style={[
-          styles.node,
-          {
-            width: nodeSize,
-            height: nodeSize,
-          borderRadius: nodeSize / 2,
-          left: `${position.x}%`,
-          top: `${position.y}%`,
-          marginLeft: -nodeSize / 2,
-          marginTop: -nodeSize / 2,
-        },
-        hover && styles.nodeHover,
-      ]}
-        onReceiveDragEnter={() => setHover(true)}
-        onReceiveDragExit={() => setHover(false)}
-        onReceiveDragDrop={({ dragged }) => {
-          const payload = dragged?.payload as string;
-          if (payload) onReceive(payload);
-          setHover(false);
-        }}
-      >
-        <Text style={styles.label} numberOfLines={1}>
-          {position.player ? position.player.name : position.label}
-        </Text>
-        {position.player && (
-          <Pressable onPress={onRemove} style={styles.removeButton}>
-            <Ionicons name="close" size={12} color="#fff" />
-          </Pressable>
-        )}
-      </DraxView>
-    );
-  }
-);
+export default PositionSlot;
 
 const styles = StyleSheet.create({
-  node: {
-    position: 'absolute',
+  slot: {
+    width: 100,
+    height: 100,
     backgroundColor: '#4CAF50',
     justifyContent: 'center',
     alignItems: 'center',
+    borderRadius: 50,
   },
-  nodeHover: {
-    borderWidth: 2,
-    borderColor: '#fff',
-    transform: [{ scale: 1.1 }],
-  },
-  label: {
+  text: {
     color: '#fff',
-    fontSize: 12,
     fontWeight: 'bold',
-    textAlign: 'center',
-    paddingHorizontal: 2,
-  },
-  removeButton: {
-    position: 'absolute',
-    top: -6,
-    right: -6,
-    backgroundColor: '#333',
-    borderRadius: 8,
-    padding: 2,
   },
 });
-
-export default PositionSlot;

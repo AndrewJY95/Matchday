@@ -4,7 +4,7 @@
     "slug": "Matchday2.0",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/icon.png",
     "scheme": "matchday20",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -28,9 +28,6 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    "plugins": [
-      "expo-router"
-    ],
     "experiments": {
       "typedRoutes": true
     }

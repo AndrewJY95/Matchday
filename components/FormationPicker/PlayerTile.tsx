@@ -1,48 +1,79 @@
-import React, { forwardRef } from 'react';
+// components/FormationPicker/PlayerTile.tsx
+import React from 'react';
+import { Text, StyleSheet, Dimensions } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedGestureHandler,
+  useAnimatedStyle,
+  withSpring,
+  runOnJS,
+} from 'react-native-reanimated';
+import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
+import type { Player } from './types';
 
-import { StyleSheet, Text } from 'react-native';
-import { DraxView } from 'react-native-drax';
-import type { Player } from './FormationPicker';
+const { width } = Dimensions.get('window');
+const DRAG_THRESHOLD_Y = 150;
 
 interface PlayerTileProps {
   player: Player;
+  onDrop: (player: Player) => void;
 }
 
-const PlayerTile = forwardRef<any, PlayerTileProps>(({ player }, ref) => (
-  <DraxView
-    ref={ref}
-    style={styles.container}
-    draggingStyle={styles.dragging}
-    dragReleasedStyle={styles.dragging}
-    hoverDraggingStyle={styles.hoverDragging}
-    longPressDelay={150}
-    dragPayload={player.id}
-  >
-    <Text style={styles.name}>{player.name}</Text>
-  </DraxView>
-));
+const PlayerTile: React.FC<PlayerTileProps> = ({ player, onDrop }) => {
+  const offsetX = useSharedValue(0);
+  const offsetY = useSharedValue(0);
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 8,
-    minWidth: '45%',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  name: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  dragging: {
-    opacity: 0.2,
-  },
-  hoverDragging: {
-    borderWidth: 1,
-    borderColor: '#fff',
-    transform: [{ scale: 1.05 }],
-  },
-});
+  const gestureHandler = useAnimatedGestureHandler<
+    PanGestureHandlerGestureEvent,
+    { startX: number; startY: number }
+  >({
+    onStart: (_, ctx) => {
+      ctx.startX = offsetX.value;
+      ctx.startY = offsetY.value;
+    },
+    onActive: (event, ctx) => {
+      offsetX.value = ctx.startX + event.translationX;
+      offsetY.value = ctx.startY + event.translationY;
+    },
+    onEnd: () => {
+      if (offsetY.value < -DRAG_THRESHOLD_Y) {
+        runOnJS(onDrop)(player);
+      }
+      offsetX.value = withSpring(0);
+      offsetY.value = withSpring(0);
+    },
+  });
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: offsetX.value },
+      { translateY: offsetY.value },
+    ],
+  }));
+
+  return (
+    <PanGestureHandler onGestureEvent={gestureHandler}>
+      <Animated.View style={[styles.tile, animatedStyle]}>
+        <Text style={styles.name}>{player.name}</Text>
+      </Animated.View>
+    </PanGestureHandler>
+  );
+};
 
 export default PlayerTile;
+
+const styles = StyleSheet.create({
+  tile: {
+    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 8,
+    minWidth: width * 0.4,
+    alignItems: 'center',
+    margin: 6,
+  },
+  name: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: '#08111c',
+  },
+});
