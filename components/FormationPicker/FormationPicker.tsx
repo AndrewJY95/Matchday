@@ -100,6 +100,8 @@ const FormationPicker: React.FC<FormationPickerProps> = ({ players, positions })
   const [highlighted, setHighlighted] = useState<string | null>(null);
   const layouts = useRef<Record<string, LayoutRectangle>>({});
   const [pitchLayout, setPitchLayout] = useState<LayoutRectangle | null>(null);
+  const pitchRef = useRef<View>(null);
+  const [pitchOffset, setPitchOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const formation =
@@ -113,7 +115,10 @@ const FormationPicker: React.FC<FormationPickerProps> = ({ players, positions })
   }, [players, positions]);
 
 
-  const findSlotAt = (x: number, y: number) => {
+  const findSlotAt = (absX: number, absY: number) => {
+    if (!pitchLayout) return undefined;
+    const x = absX - pitchOffset.x;
+    const y = absY - pitchOffset.y;
     return Object.entries(layouts.current).find(([, rect]) =>
       x >= rect.x &&
       x <= rect.x + rect.width &&
@@ -162,8 +167,14 @@ const FormationPicker: React.FC<FormationPickerProps> = ({ players, positions })
   return (
     <View style={styles.container}>
       <View
+        ref={pitchRef}
         style={styles.pitch}
-        onLayout={(e) => setPitchLayout(e.nativeEvent.layout)}
+        onLayout={(e) => {
+          setPitchLayout(e.nativeEvent.layout);
+          pitchRef.current?.measureInWindow((x, y, width, height) => {
+            setPitchOffset({ x, y });
+          });
+        }}
       >
         <Image
           source={require('@/assets/images/pitch.png')}
@@ -179,6 +190,7 @@ const FormationPicker: React.FC<FormationPickerProps> = ({ players, positions })
             pitchLayout?.height != null
               ? (slot.y / 100) * pitchLayout.height - nodeSize / 2
               : 0;
+          layouts.current[slot.id] = { x: left, y: top, width: nodeSize, height: nodeSize };
           return (
             <PositionSlot
               key={slot.id}
@@ -189,9 +201,6 @@ const FormationPicker: React.FC<FormationPickerProps> = ({ players, positions })
               left={left}
               top={top}
               onRemove={() => handleRemove(slot.id)}
-              onLayout={(layout) => {
-                layouts.current[slot.id] = layout;
-              }}
             />
           );
         })}
