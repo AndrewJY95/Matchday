@@ -8,8 +8,8 @@ interface PositionSlotProps {
   assignedPlayer: Player | null;
   highlighted?: boolean;
   size: number;
-  left: string;
-  top: string;
+  left: number;
+  top: number;
   onRemove: () => void;
   onLayout: (layout: LayoutRectangle) => void;
 }
@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 1,
   },
   highlight: {
     borderWidth: 2,

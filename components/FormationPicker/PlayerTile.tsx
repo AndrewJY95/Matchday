@@ -67,9 +67,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     padding: 12,
     borderRadius: 8,
-    minWidth: width * 0.4,
+    width: width / 3 - 12,
     alignItems: 'center',
     margin: 6,
+    flexGrow: 1,
   },
   name: {
     fontWeight: 'bold',
