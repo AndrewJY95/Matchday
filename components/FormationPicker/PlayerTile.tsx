@@ -16,10 +16,11 @@ const DRAG_THRESHOLD_Y = 150;
 
 interface PlayerTileProps {
   player: Player;
-  onDrop: (player: Player) => void;
+  onDrag?: (x: number, y: number) => void;
+  onDrop: (player: Player, x: number, y: number) => void;
 }
 
-const PlayerTile: React.FC<PlayerTileProps> = ({ player, onDrop }) => {
+const PlayerTile: React.FC<PlayerTileProps> = ({ player, onDrag, onDrop }) => {
   const offsetX = useSharedValue(0);
   const offsetY = useSharedValue(0);
 
@@ -34,11 +35,10 @@ const PlayerTile: React.FC<PlayerTileProps> = ({ player, onDrop }) => {
     onActive: (event, ctx) => {
       offsetX.value = ctx.startX + event.translationX;
       offsetY.value = ctx.startY + event.translationY;
+      if (onDrag) runOnJS(onDrag)(event.absoluteX, event.absoluteY);
     },
-    onEnd: () => {
-      if (offsetY.value < -DRAG_THRESHOLD_Y) {
-        runOnJS(onDrop)(player);
-      }
+    onEnd: (event) => {
+      runOnJS(onDrop)(player, event.absoluteX, event.absoluteY);
       offsetX.value = withSpring(0);
       offsetY.value = withSpring(0);
     },
