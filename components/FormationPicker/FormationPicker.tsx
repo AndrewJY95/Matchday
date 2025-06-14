@@ -103,6 +103,7 @@ const FormationPicker: React.FC<FormationPickerProps> = ({ players, positions })
   const pitchRef = useRef<View>(null);
   const [pitchOffset, setPitchOffset] = useState({ x: 0, y: 0 });
 
+
   useEffect(() => {
     const formation =
       positions && positions.length > 0
@@ -190,6 +191,7 @@ const FormationPicker: React.FC<FormationPickerProps> = ({ players, positions })
             pitchLayout?.height != null
               ? (slot.y / 100) * pitchLayout.height - nodeSize / 2
               : 0;
+
           layouts.current[slot.id] = { x: left, y: top, width: nodeSize, height: nodeSize };
           return (
             <PositionSlot
