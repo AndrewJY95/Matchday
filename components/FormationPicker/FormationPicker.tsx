@@ -1,50 +1,176 @@
 // components/FormationPicker/FormationPicker.tsx
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, Pressable, Image, LayoutRectangle, useWindowDimensions } from 'react-native';
 import PlayerTile from './PlayerTile';
-import type { Player } from './types';
+import PositionSlot from './PositionSlot';
+import type { Player, Position } from './types';
 
 interface FormationPickerProps {
   players: Player[];
-  positions: any[]; // Placeholder — not used yet in the simplified version
 }
 
-const FormationPicker: React.FC<FormationPickerProps> = ({ players }) => {
-  const [availablePlayers, setAvailablePlayers] = useState<Player[]>(players);
-  const [assignedPlayer, setAssignedPlayer] = useState<Player | null>(null);
+export const formationPositions: Record<number, Position[]> = {
+  5: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'CB', label: 'CB', x: 50, y: 70 },
+    { id: 'LM', label: 'LM', x: 30, y: 50 },
+    { id: 'RM', label: 'RM', x: 70, y: 50 },
+    { id: 'CF', label: 'CF', x: 50, y: 25 },
+  ],
+  6: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'CB1', label: 'CB', x: 40, y: 70 },
+    { id: 'CB2', label: 'CB', x: 60, y: 70 },
+    { id: 'LM', label: 'LM', x: 30, y: 50 },
+    { id: 'RM', label: 'RM', x: 70, y: 50 },
+    { id: 'CF', label: 'CF', x: 50, y: 25 },
+  ],
+  7: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'CB1', label: 'CB', x: 40, y: 70 },
+    { id: 'CB2', label: 'CB', x: 60, y: 70 },
+    { id: 'LM', label: 'LM', x: 20, y: 55 },
+    { id: 'CM', label: 'CM', x: 50, y: 50 },
+    { id: 'RM', label: 'RM', x: 80, y: 55 },
+    { id: 'CF', label: 'CF', x: 50, y: 25 },
+  ],
+  8: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'LB', label: 'LB', x: 20, y: 70 },
+    { id: 'CB', label: 'CB', x: 50, y: 70 },
+    { id: 'RB', label: 'RB', x: 80, y: 70 },
+    { id: 'LM', label: 'LM', x: 30, y: 50 },
+    { id: 'CM', label: 'CM', x: 50, y: 50 },
+    { id: 'RM', label: 'RM', x: 70, y: 50 },
+    { id: 'CF', label: 'CF', x: 50, y: 25 },
+  ],
+  9: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'LB', label: 'LB', x: 20, y: 70 },
+    { id: 'CB', label: 'CB', x: 50, y: 70 },
+    { id: 'RB', label: 'RB', x: 80, y: 70 },
+    { id: 'CM', label: 'CM', x: 40, y: 55 },
+    { id: 'DM', label: 'DM', x: 60, y: 60 },
+    { id: 'LW', label: 'LW', x: 25, y: 25 },
+    { id: 'CF', label: 'CF', x: 50, y: 20 },
+    { id: 'RW', label: 'RW', x: 75, y: 25 },
+  ],
+ 10: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'LB', label: 'LB', x: 15, y: 70 },
+    { id: 'CB1', label: 'CB', x: 35, y: 70 },
+    { id: 'CB2', label: 'CB', x: 65, y: 70 },
+    { id: 'RB', label: 'RB', x: 85, y: 70 },
+    { id: 'LM', label: 'LM', x: 30, y: 50 },
+    { id: 'CM', label: 'CM', x: 50, y: 50 },
+    { id: 'RM', label: 'RM', x: 70, y: 50 },
+    { id: 'CF1', label: 'CF', x: 40, y: 25 },
+    { id: 'CF2', label: 'CF', x: 60, y: 25 },
+  ],
+ 11: [
+    { id: 'GK', label: 'GK', x: 50, y: 90 },
+    { id: 'LB', label: 'LB', x: 20, y: 70 },
+    { id: 'CB1', label: 'CB', x: 40, y: 70 },
+    { id: 'CB2', label: 'CB', x: 60, y: 70 },
+    { id: 'RB', label: 'RB', x: 80, y: 70 },
+    { id: 'DM', label: 'DM', x: 50, y: 60 },
+    { id: 'LM', label: 'LM', x: 30, y: 45 },
+    { id: 'RM', label: 'RM', x: 70, y: 45 },
+    { id: 'AM', label: 'AM', x: 50, y: 35 },
+    { id: 'CF1', label: 'CF', x: 40, y: 20 },
+    { id: 'CF2', label: 'CF', x: 60, y: 20 },
+  ],
+};
 
-  const handleDrop = (player: Player) => {
-    setAssignedPlayer(player);
+const FormationPicker: React.FC<FormationPickerProps> = ({ players }) => {
+  const { width } = useWindowDimensions();
+  const nodeSize = Math.max(40, width * 0.12);
+
+  const [availablePlayers, setAvailablePlayers] = useState<Player[]>(players);
+  const [slots, setSlots] = useState<Position[]>([]);
+  const [highlighted, setHighlighted] = useState<string | null>(null);
+  const layouts = useRef<Record<string, LayoutRectangle>>({});
+
+  useEffect(() => {
+    const formation = formationPositions[players.length] || formationPositions[11];
+    setSlots(formation.map((p) => ({ ...p, player: null })));
+    setAvailablePlayers(players);
+  }, [players]);
+
+  const findSlotAt = (x: number, y: number) => {
+    return Object.entries(layouts.current).find(([, rect]) =>
+      x >= rect.x && x <= rect.x + rect.width && y >= rect.y && y <= rect.y + rect.height
+    );
+  };
+
+  const handleDrag = (x: number, y: number) => {
+    const entry = findSlotAt(x, y);
+    if (!entry) {
+      if (highlighted) setHighlighted(null);
+      return;
+    }
+    const [id] = entry;
+    const slot = slots.find((s) => s.id === id);
+    if (slot && !slot.player) setHighlighted(id);
+    else if (highlighted) setHighlighted(null);
+  };
+
+  const handleDrop = (player: Player, x: number, y: number) => {
+    const entry = findSlotAt(x, y);
+    setHighlighted(null);
+    if (!entry) return;
+    const [id] = entry;
+    setSlots((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, player } : s))
+    );
     setAvailablePlayers((prev) => prev.filter((p) => p.id !== player.id));
   };
 
-  const handleRemove = () => {
-    if (assignedPlayer) {
-      setAvailablePlayers((prev) => [...prev, assignedPlayer]);
-      setAssignedPlayer(null);
-    }
+  const handleRemove = (slotId: string) => {
+    const slot = slots.find((s) => s.id === slotId);
+    if (!slot?.player) return;
+    setAvailablePlayers((prev) => [...prev, slot.player as Player]);
+    setSlots((prev) => prev.map((s) => (s.id === slotId ? { ...s, player: null } : s)));
   };
 
   const reset = () => {
-    setAssignedPlayer(null);
+    setSlots((prev) => prev.map((s) => ({ ...s, player: null })));
     setAvailablePlayers(players);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Drop onto CF</Text>
-
       <View style={styles.pitch}>
-        <Pressable style={styles.positionSlot} onPress={handleRemove}>
-          <Text style={styles.positionText}>
-            {assignedPlayer ? assignedPlayer.name : 'CF'}
-          </Text>
-        </Pressable>
+        <Image
+          source={require('@/assets/images/pitch.png')}
+          style={styles.pitchImage}
+          resizeMode="contain"
+        />
+        {slots.map((slot) => (
+          <PositionSlot
+            key={slot.id}
+            label={slot.label}
+            assignedPlayer={slot.player || null}
+            highlighted={highlighted === slot.id}
+            size={nodeSize}
+            left={`${slot.x}%`}
+            top={`${slot.y}%`}
+            onRemove={() => handleRemove(slot.id)}
+            onLayout={(layout) => {
+              layouts.current[slot.id] = layout;
+            }}
+          />
+        ))}
       </View>
 
       <View style={styles.list}>
         {availablePlayers.map((player) => (
-          <PlayerTile key={player.id} player={player} onDrop={handleDrop} />
+          <PlayerTile
+            key={player.id}
+            player={player}
+            onDrag={handleDrag}
+            onDrop={handleDrop}
+          />
         ))}
       </View>
 
@@ -59,24 +185,18 @@ export default FormationPicker;
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#08111c', padding: 16 },
-  title: { color: '#fff', fontSize: 18, fontWeight: 'bold', marginBottom: 12 },
   pitch: {
-    height: 200,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#112233',
-    borderRadius: 10,
+    width: '100%',
+    aspectRatio: 2 / 3,
     marginBottom: 20,
+    position: 'relative',
+    overflow: 'hidden',
   },
-  positionSlot: {
-    width: 100,
-    height: 100,
-    backgroundColor: '#4CAF50',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 50,
+  pitchImage: {
+    ...StyleSheet.absoluteFillObject,
+    width: '100%',
+    height: '100%',
   },
-  positionText: { color: '#fff', fontWeight: 'bold' },
   list: {
     flexDirection: 'row',
     flexWrap: 'wrap',
